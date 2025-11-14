@@ -9,9 +9,10 @@ from scipy.interpolate import RegularGridInterpolator
 #import re
 import FiniteElementMeshRoutines as FE
 
-mshnm="RWPS25to1km"
+mshnm="RWPStest"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
+
 
 #floutGM=OutDir+'GM.'+Nzp+'.txt'
 #floutGMUnk=OutDir+'GMUnk.'+Nzp+'.txt'
@@ -42,9 +43,9 @@ def WriteInterpJobscript(fl,N, ComputeNodes):
         f.write("module load py-scipy/1.14.1 \n")
         f.write("module load py-netcdf4/1.7.1.post2 \n")
         f.write("pip list \n")
-        f.write("srun python3  InterpolateCRM.part.py $SLURM_ARRAY_TASK_ID > InterpJob.$SLURM_ARRAY_TASK_ID.out")
-        f.write("wait\n")
-        f.write("##run this after the full job array is compleate, need to test")
+        f.write("srun python3  InterpolateCRM.part.py $SLURM_ARRAY_TASK_ID > InterpJob.$SLURM_ARRAY_TASK_ID.out \n")
+        f.write("wait \n")
+        f.write("##run this after the full job array is compleate, need to test \n")
         f.write("cat "+OutDir+"GM.*.txt > GM."+mshnm+".txt \n")
         f.write("cat "+OutDir+"GMUnk.*.txt > GMUnk."+mshnm+".txt \n")
         f.write("cat "+OutDir+"InvDist.*.txt > InvDist."+mshnm+".txt \n")
@@ -63,6 +64,14 @@ except PermissionError:
 fl="meshes/"+mshnm+".msh"
 
 xi, yi, ei =FE.loadWW3MeshCoords(fl)
+
+#tmp
+lsE=FE.lengthscale(xi, yi, ei)
+areaE=FE.ElementArea(xi, yi, ei)
+lsN=FE.ComputeNodeLengthScale(lsE, areaE, ei)
+np.savetxt("LengthScaleNodes.txt",  lsN, fmt='%.6f', delimiter='\n')
+
+
 Nparts=int(sys.argv[1])
 nn=xi.shape[0]
 NodesPerProc=math.ceil(nn/Nparts)

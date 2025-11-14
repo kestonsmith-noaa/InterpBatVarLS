@@ -240,12 +240,16 @@ for n in range(nn):
         zs=zsp
     
     ziD[n]=GM.InverseDistance(xs,ys,zs,xp,yp,2)
-    stderr=np.mean(np.abs(zs))/100.
+    VarObs=(np.mean(np.abs(zs))/100.)**2
+    #VarBG=((np.max(zs)-np.min(zs))/10.)**2
+    #VarBG=(np.std(zs)/2.)**2
     #stderr=np.std(zs)/10.
-    if stderr < 1:
-        stderr = 1.
-    ziOK[n]=GM.GaussMarkovUnkMean(xs, ys, zs, xp, yp,LSp, 2, stderr)
-    ziSK[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, 2, stderr)
+    if VarObs < 1:
+        VarObs  = 1.
+    #VarBG=VarObs*25.
+    VarBG=1.
+    ziOK[n]=GM.GaussMarkovUnkMean(xs, ys, zs, xp, yp,LSp, 2, VarObs,VarBG)
+    ziSK[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, 2, VarObs,VarBG)
     D=GM.Distance(xs,ys,xp,yp)
     jc=np.argmin(D)
     ziClosest[n]=zs[jc]

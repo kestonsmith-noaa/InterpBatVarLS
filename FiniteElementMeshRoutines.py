@@ -48,7 +48,7 @@ def loadWW3MeshCoords(fl):
     ne=int(header)
     print("ne=",str(ne))
     ei=np.zeros((ne,3), dtype=int)
-    print(ei)
+    #print(ei)
     k=0
     for i in range(ne):
         A = f.readline()

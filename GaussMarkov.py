@@ -20,21 +20,17 @@ def InverseDistance(x,y,z,xi,yi,K):
     #print(zi)
     return zi
 
-def GaussMarkov(x,y,z,xi,yi,LengthScale,K,err):
+def GaussMarkov(x,y,z,xi,yi,LengthScale,K,Vobs,V):
     nx=len(x)
     f = np.zeros(nx)
     C = np.zeros((nx,nx))
     for j in range(nx):
         for k in range(nx):
-#            d = distance.great_circle([y[j],x[j]],[y[k],x[k]]).km
-            #d=np.sqrt( (x[j]-x[k] )**2+ (y[j]-y[k])**2)
             d = Distance(x[j],y[j],x[k],y[k])
-            C[j,k]=CovarianceDistance(d,covmod,LengthScale,variance,2)
-        C[j,j]=C[j,j] + err**2
-#        d=np.sqrt( (x[j]-xi )**2+ (y[j]-yi)**2)
-#        d = distance.great_circle([ y[j], x[j] ],[ yi, xi ]).km
+            C[j,k]=CovarianceDistance(d,covmod,LengthScale,V,2)
+        C[j,j]=C[j,j] + Vobs
         d = Distance(x[j],y[j],xi,yi)
-        f[j]=CovarianceDistance(d,covmod,LengthScale,variance,2)
+        f[j]=CovarianceDistance(d,covmod,LengthScale,V,2)
     detC = np.linalg.det(C)
     if np.isclose(detC, 0):
         zi=float("inf")
@@ -58,17 +54,17 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,K,err):
         zi=mu+np.dot(w,z-mu)
     return zi
 
-def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,K,err):
+def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,K,Vobs,V):
     nx=len(x)
     f = np.zeros(nx+1)
     C = np.zeros((nx+1,nx+1))
     for j in range(nx):
         for k in range(nx):
             d = Distance(x[j],y[j],x[k],y[k])
-            C[j,k]=CovarianceDistance(d,covmod,LengthScale,variance,2)
-        C[j,j]=C[j,j] + err**2
+            C[j,k]=CovarianceDistance(d,covmod,LengthScale,V,2)
+        C[j,j]=C[j,j] + Vobs
         d = Distance(x[j],y[j],xi,yi)
-        f[j]=CovarianceDistance(d,covmod,LengthScale,variance,2)
+        f[j]=CovarianceDistance(d,covmod,LengthScale,V,2)
         C[nx,j]=1
         C[j,nx]=1
     C[nx,nx]=0
