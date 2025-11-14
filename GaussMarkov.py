@@ -1,6 +1,6 @@
 
 import numpy as np
-
+import re
 covmod="Sph"
 K=2
 variance=1.
@@ -41,15 +41,19 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,K,err):
         print("Cov matrix is likely singular.")
     else:
         match MeanComp:
-            case "Zero":
+            case "Zero": # simple kriging type
                 mu=0.
-            case "Sample":
+            case "Mean":
                 mu=np.mean(z) # regional mean
             case "Median":
+                mu=np.median(z) # regional median
+            case "Nearest": # nearest value
                 d0 = np.zeros(nx)
                 for j in range(nx):
                     d0[j]=Distance(x[j],y[j],xi,yi)
                 mu=z[np.argmin(d0)] # closest point for process mean
+            case _:
+                mu=0.
         w = np.linalg.solve(C, f)
         zi=mu+np.dot(w,z-mu)
     return zi
