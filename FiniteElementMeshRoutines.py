@@ -33,10 +33,15 @@ def loadWW3MeshCoords(fl):
         #print(A)
         values = A.split(" ")
         #print(values)
-        xi[k]=values[2]
-        yi[k]=values[4]
+        if len(values)>4:
+            xi[k]=values[2]
+            yi[k]=values[4]
+        else:
+            xi[k]=values[1]
+            yi[k]=values[2]
 #        print(str(xi[k])+" "+str(yi[k]))
         k=k+1
+    print("number of nodes read: "+str(k))
     header = f.readline() 
     header = f.readline() 
     header = f.readline() # number of elements
@@ -49,11 +54,19 @@ def loadWW3MeshCoords(fl):
         A = f.readline()
         #print(A)
         values = A.split(" ")
-        ei[k,0]=int(values[12])
-        ei[k,1]=int(values[14])
-        ei[k,2]=int(values[16])
-        k=k+1
-
+        #print(values)
+        #need to factor bnd nodes
+        if len(values)>15:
+            ei[k,0]=int(values[12])
+            ei[k,1]=int(values[14])
+            ei[k,2]=int(values[16])
+            k=k+1
+        elif len(values)>7:
+            ei[k,0]=int(values[6])
+            ei[k,1]=int(values[7])
+            ei[k,2]=int(values[8])
+            k=k+1
+    print("number of elements read: "+str(k))
     return xi, yi, ei
 
 
