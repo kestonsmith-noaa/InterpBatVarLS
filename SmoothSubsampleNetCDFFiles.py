@@ -8,7 +8,7 @@ from scipy import signal
 #[0->7] variables(dimensions): |S1 crs(), float64 lat(lat), float64 lon(lon), float32 z(lat, lon)
 #[8->9]variables(dimensions): float64 x(x), float64 y(y), float32 z(y, x)
 #[10]variables(dimensions): float64 lon(num_lon), float64 lat(num_lat), int16 bed_elevation(num_row, num_col)
-"""
+
 flnms=[
     "crm_vol1_2023.nc",#dx= 0.00027, 3600/deg
     "crm_vol2_2023.nc",# cut to 11 x 11
@@ -21,9 +21,9 @@ flnms=[
     "crm_vol6_2023.nc",#dx= 0.0008 cut to 3 x 3
     "crm_vol8_2023.nc",#dx= 0.0008,1200 / deg
     ]
-"""
+
 #flnms= ["crm_vol10_2023.nc"]
-flnms= ["crm_socal_1as_vers2.nc"]
+#flnms= ["crm_socal_1as_vers2.nc"]
 count=0
 filval=-99999
 for fl in flnms:
@@ -39,7 +39,7 @@ for fl in flnms:
     data0 = nc.Dataset(fl,"r")
     x=np.asarray(data0["lon"][:])
     y=np.asarray(data0["lat"][:])
-    if fl = "crm_socal_1as_vers2.nc":
+    if fl == "crm_socal_1as_vers2.nc":
         z=np.asarray(data0["Band1"][:])
         z=z.astype(np.float32)
     else:

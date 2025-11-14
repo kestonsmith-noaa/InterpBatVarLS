@@ -9,7 +9,7 @@ from scipy.interpolate import RegularGridInterpolator
 #import re
 import FiniteElementMeshRoutines as FE
 
-mshnm="global_1deg_unstr"
+mshnm="RWPS25to1km"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
 
@@ -43,11 +43,8 @@ def WriteInterpJobscript(fl,N, ComputeNodes):
         f.write("module load py-netcdf4/1.7.1.post2 \n")
         f.write("pip list \n")
         f.write("srun python3  InterpolateCRM.part.py $SLURM_ARRAY_TASK_ID > InterpJob.$SLURM_ARRAY_TASK_ID.out")
-#        for k in range(N):
-#            f.write("srun -n 1 python3 InterpSTOFS2mesh.part.py "+str(k)+" > InterpJob."+str(k)+".out & \n")
         f.write("wait\n")
-        f.write("##run this after the full job array is compleate, need to test \n")
-        #f.write("python3 ConvertOutput2Netcdf.py "+str(N))
+        f.write("##run this after the full job array is compleate, need to test")
         f.write("cat "+OutDir+"GM.*.txt > GM."+mshnm+".txt \n")
         f.write("cat "+OutDir+"GMUnk.*.txt > GMUnk."+mshnm+".txt \n")
         f.write("cat "+OutDir+"InvDist.*.txt > InvDist."+mshnm+".txt \n")
@@ -63,7 +60,6 @@ except FileExistsError:
 except PermissionError:
     print(f"Permission denied: Unable to create '{OutDir}'.")
 
-#fl="meshes/global_1deg_unstr.msh"
 fl="meshes/"+mshnm+".msh"
 
 xi, yi, ei =FE.loadWW3MeshCoords(fl)

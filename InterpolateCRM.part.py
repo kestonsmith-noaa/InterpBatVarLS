@@ -113,7 +113,7 @@ def ZeroPadIntStr(N,K):
     ZPNs=str(N).zfill(K)
     return ZPNs
 
-mshnm="global_1deg_unstr"
+mshnm="RWPS25to1km"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
 
