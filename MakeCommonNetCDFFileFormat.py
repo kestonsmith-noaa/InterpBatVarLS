@@ -11,7 +11,7 @@ from scipy.interpolate import RegularGridInterpolator
 import re
 #import ComputeMeshToMeshInterpWeights as mshint
 import math
-from geopy import distance
+#from geopy import distance
 import subprocess
 
 # Example 1: Basic command execution

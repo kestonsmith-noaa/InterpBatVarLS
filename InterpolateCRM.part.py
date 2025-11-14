@@ -11,7 +11,7 @@ from scipy.interpolate import RegularGridInterpolator
 import re
 #import ComputeMeshToMeshInterpWeights as mshint
 import math
-from geopy import distance
+#from geopy import distance
 import itertools
 #from geopy.distance import haversine
 #from pykrige.ok import OrdinaryKriging
@@ -24,9 +24,9 @@ coords_2 = (40.7128, -74.0060)   # New York City
 
 #Using Haversine
 #distance_haversine = distance.haversine(coords_1, coords_2).km
-dist=distance.great_circle(coords_1, coords_2).km
-print(f"Haversine distance: {dist:.2f} km")
-maxval=100.
+#dist=distance.great_circle(coords_1, coords_2).km
+#print(f"Haversine distance: {dist:.2f} km")
+#maxval=100.
 
 
 #[0->7] variables(dimensions): |S1 crs(), float64 lat(lat), float64 lon(lon), float32 z(lat, lon)

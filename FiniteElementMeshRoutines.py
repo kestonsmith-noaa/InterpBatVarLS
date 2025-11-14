@@ -1,7 +1,19 @@
 import numpy as np
 import math
-from geopy import distance
+#from geopy import distance
 import re
+
+
+deg2km=111.132954
+deg2rad=np.pi/180
+
+def Distance(x0,y0,x1,y1):
+#    d = distance.great_circle(y0,x0,y1,x1).km
+    d=np.sqrt( 
+        ( deg2km*np.cos(deg2rad*(y0+y1)/2 )*(x1-x0) )**2 + 
+        ( deg2km*(y1-y0))**2  ) 
+    return d
+
 
 def loadWW3MeshCoords(fl):
     f=open(fl, 'r')
@@ -57,9 +69,12 @@ def lengthscale(x, y, e):
         y2=y[e[k,1]-1]
         x3=x[e[k,2]-1]
         y3=y[e[k,2]-1]
-        D3 = distance.great_circle([y1,x1],[y2,x2]).km
-        D1 = distance.great_circle([y2,x2],[y3,x3]).km
-        D2 = distance.great_circle([y3,x3],[y1,x1]).km
+        D3=Distance(x1,y1,x2,y2)
+        D1=Distance(x2,y2,x3,y3)
+        D2=Distance(x3,y3,x1,y1)
+#        D3 = distance.great_circle([y1,x1],[y2,x2]).km
+#        D1 = distance.great_circle([y2,x2],[y3,x3]).km
+#        D2 = distance.great_circle([y3,x3],[y1,x1]).km
         lengthscaleE[k]=(D1+D2+D3)/3  
         # mean edge length
     return lengthscaleE
@@ -76,9 +91,12 @@ def ElementArea(x, y, e):
         y2=y[e[k,1]-1];
         x3=x[e[k,2]-1];
         y3=y[e[k,2]-1];
-        D3 = distance.great_circle([y1,x1],[y2,x2]).km
-        D1 = distance.great_circle([y2,x2],[y3,x3]).km
-        D2 = distance.great_circle([y3,x3],[y1,x1]).km
+        D3=Distance(x1,y1,x2,y2)
+        D1=Distance(x2,y2,x3,y3)
+        D2=Distance(x3,y3,x1,y1)
+#        D3 = distance.great_circle([y1,x1],[y2,x2]).km
+#        D1 = distance.great_circle([y2,x2],[y3,x3]).km
+#        D2 = distance.great_circle([y3,x3],[y1,x1]).km
         S=(D1+D2+D3)/2
         A=np.sqrt(S * (S - D1) * (S - D2) * (S - D3))
         AreaE[k]=A
