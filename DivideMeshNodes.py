@@ -46,13 +46,13 @@ def WriteInterpJobscript(fl,N, ComputeNodes):
 #        for k in range(N):
 #            f.write("srun -n 1 python3 InterpSTOFS2mesh.part.py "+str(k)+" > InterpJob."+str(k)+".out & \n")
         f.write("wait\n")
-        f.write("##run this after the full job array is compleate, need to test")
-        f.write("python3 ConvertOutput2Netcdf.py "+str(N))
-        f.write("cat "+OutDir+"GM.*.txt > GM."+mshnm+".txt")
-        f.write("cat "+OutDir+"GMUnk.*.txt > GMUnk."+mshnm+".txt")
-        f.write("cat "+OutDir+"InvDist.*.txt > InvDist."+mshnm+".txt")
-        f.write("cat "+OutDir+"NDataPoints.*.txt > NDataPoints."+mshnm+".txt")
-        f.write("cat "+OutDir+"ClosestValue.*.txt > ClosestValue."+mshnm+".txt")
+        f.write("##run this after the full job array is compleate, need to test \n")
+        #f.write("python3 ConvertOutput2Netcdf.py "+str(N))
+        f.write("cat "+OutDir+"GM.*.txt > GM."+mshnm+".txt \n")
+        f.write("cat "+OutDir+"GMUnk.*.txt > GMUnk."+mshnm+".txt \n")
+        f.write("cat "+OutDir+"InvDist.*.txt > InvDist."+mshnm+".txt \n")
+        f.write("cat "+OutDir+"NDataPoints.*.txt > NDataPoints."+mshnm+".txt \n")
+        f.write("cat "+OutDir+"ClosestValue.*.txt > ClosestValue."+mshnm+".txt \n")
 
 # Create the output directory------------------------------------------
 try:
