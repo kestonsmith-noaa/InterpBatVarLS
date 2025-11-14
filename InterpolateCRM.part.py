@@ -113,7 +113,7 @@ def ZeroPadIntStr(N,K):
     ZPNs=str(N).zfill(K)
     return ZPNs
 
-mshnm="RWPS25to1km"
+mshnm="RWPStest"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
 
@@ -193,6 +193,22 @@ for n in range(nn):
                                 xs.append(x[kx])
                                 ys.append(y[ky])
                                 zs.append(zd)
+    ms=np.column_stack((xs,ys))                               
+    msu, indx = np.unique(ms, axis=0, return_index=True)
+    n0=ms.shape[0]
+    nu0=msu.shape[0]
+    if nu0 < n0:
+        print("points not unique for node: "+str(n))
+        print(ms.shape)
+        print(msu.shape)
+        print(indx)
+        print(indx.shape)
+        xs=np.array(xs)
+        ys=np.array(ys)
+        zs=np.array(zs)
+        xs=xs[indx]
+        ys=ys[indx]
+        zs=zs[indx]
     if n  % 100 == 0:
         print("interpolating to:"+str(yp)+":"+str(xp))
         t1 = time.time()
