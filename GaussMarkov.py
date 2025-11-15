@@ -20,7 +20,7 @@ def InverseDistance(x,y,z,xi,yi,K):
     #print(zi)
     return zi
 
-def GaussMarkov(x,y,z,xi,yi,LengthScale,K,Vobs,V):
+def GaussMarkov(x,y,z,xi,yi,LengthScale,K,Vobs,V,MeanTyp):
     nx=len(x)
     f = np.zeros(nx)
     C = np.zeros((nx,nx))
@@ -36,7 +36,7 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,K,Vobs,V):
         zi=float("inf")
         print("Cov matrix is likely singular.")
     else:
-        match MeanComp:
+        match MeanTyp:
             case "Zero": # simple kriging type
                 mu=0.
             case "Mean":
@@ -44,14 +44,15 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,K,Vobs,V):
             case "Median":
                 mu=np.median(z) # regional median
             case "Nearest": # nearest value
-                d0 = np.zeros(nx)
-                for j in range(nx):
-                    d0[j]=Distance(x[j],y[j],xi,yi)
-                mu=z[np.argmin(d0)] # closest point for process mean
+                mu=z[np.argmax(f)] # max correlate==closest point for process mean
+#                d0 = np.zeros(nx)
+#                for j in range(nx):
+#                    d0[j]=Distance(x[j],y[j],xi,yi)
+#                mu=z[np.argmin(d0)] # closest point for process mean
             case _:
                 mu=0.
         w = np.linalg.solve(C, f)
-        zi=mu+np.dot(w,z-mu)
+        zi=mu+np.dot(w,z-np.array(mu))
     return zi
 
 def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,K,Vobs,V):

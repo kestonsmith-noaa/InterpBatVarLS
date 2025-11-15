@@ -63,7 +63,7 @@ flnms=[
 #    "crm_socal_1as_vers2.nc.S250m.nc",# mostly redundent with 6 but some extra regions, need to synthesize
     ]
  
-
+Dmin=10./1000.# minimum distance between observation points in km
 lambdaLL=.025
 NpointsMax=1000
 xlist=[]
@@ -91,24 +91,7 @@ for fl in flnms:
     ymax[n]=np.max(y)+lambdaLL*2
     ymin[n]=np.min(y)-lambdaLL*2
     n=n+1
-"""
-xlist=[]
-ylist=[]
-n=0
-nxl=np.zeros(len(flnms))
-nyl=np.zeros(len(flnms))
-for fl in flnms:
-#    print(f"'{fl}' has a length of {len(fl)}")
-    data = nc.Dataset(fl,"r")
-    x=np.array(data["lon"][:])
-    x=x%360
-    y=np.array(data["lat"][:])
-    xlist.append(list(x))
-    ylist.append(list(y))
-    nxl[n]=len(x)
-    nyl[n]=len(y)
-    n=n+1
-"""
+
 def ZeroPadIntStr(N,K):
     ZPNs=str(N).zfill(K)
     return ZPNs
@@ -130,11 +113,15 @@ N=int(sys.argv[1])
 Nzp=ZeroPadIntStr(N,5)
 print("N= "+str(N)+" Nzp=",Nzp)
 fln=OutDir+'NodeList.'+str(N)+'.txt'
-floutGM=OutDir+'GM.'+Nzp+'.txt'
-floutGMUnk=OutDir+'GMUnk.'+Nzp+'.txt'
+
 floutID=OutDir+'InvDist.'+Nzp+'.txt'
-floutNpts=OutDir+'NDataPoints.'+Nzp+'.txt'
+floutGMM=OutDir+'GMM.'+Nzp+'.txt'
+floutGMN=OutDir+'GMN.'+Nzp+'.txt'
+floutGM0=OutDir+'GM0.'+Nzp+'.txt'
+floutGMU=OutDir+'GMU.'+Nzp+'.txt'
 floutClosest=OutDir+'ClosestValue.'+Nzp+'.txt'
+floutNpts=OutDir+'NDataPoints.'+Nzp+'.txt'
+
 #read in nodes to interpolate to
 f=open(fln,"r")
 header = f.readline()
@@ -158,12 +145,13 @@ nn=len(xil)
 nf=len(flnms)
 
 #nn=103
-ziD=np.zeros(nn)
-ziSK=np.zeros(nn)
-ziOK=np.zeros(nn)
-ziClosest=np.zeros(nn)
-ziOKerr=np.zeros(nn)
 NumPoints=np.zeros(nn)
+ziID=np.zeros(nn)
+ziGMU=np.zeros(nn)
+ziGMN=np.zeros(nn)
+ziGMM=np.zeros(nn)
+ziGM0=np.zeros(nn)
+ziClosest=np.zeros(nn)
 
 t0 = time.time()
 for n in range(nn):
@@ -186,37 +174,30 @@ for n in range(nn):
             data = nc.Dataset(fl,"r")
             for kx in jx:
                 for ky in jy:
-                        if kx and ky: 
+                        if kx and ky: # not empty 
                             z=data["z"][ky,kx]
                             if not z.mask:
-                                zd=float(z.data)
-                                xs.append(x[kx])
-                                ys.append(y[ky])
-                                zs.append(zd)
-    ms=np.column_stack((xs,ys))                               
-    msu, indx = np.unique(ms, axis=0, return_index=True)
-    n0=ms.shape[0]
-    nu0=msu.shape[0]
-    if nu0 < n0:
-        print("points not unique for node: "+str(n))
-        print(ms.shape)
-        print(msu.shape)
-        print(indx)
-        print(indx.shape)
-        xs=np.array(xs)
-        ys=np.array(ys)
-        zs=np.array(zs)
-        xs=xs[indx]
-        ys=ys[indx]
-        zs=zs[indx]
-    if n  % 100 == 0:
+                                IncludePoint=True
+                                if len(xs)>0:#BEGIN -check for near duplicate points - causes singularity in GM
+                                    d=np.zeros(len(xs))
+                                    for k in range(len(xs)):
+                                        d[k]=GM.Distance(xs[k],ys[k],x[kx],y[ky])
+                                    if np.min(d)<Dmin:
+                                        print("near duplicate point at distance: "+str(np.min(d))+" for node "+str(n))
+                                        IncludePoint=False #END -check for near duplicate points
+                                if IncludePoint: # first point
+                                    zd=float(z.data)
+                                    xs.append(x[kx])
+                                    ys.append(y[ky])
+                                    zs.append(zd)
+    if n % 100 == 0:
         print("interpolating to:"+str(yp)+":"+str(xp))
         t1 = time.time()
         time_per_iter = (t1 - t0) / (n + 1)
         time_remaining = (nn - n) * time_per_iter / 60
         print("Progress: "+str(n+1)+" of "+ str(nn))
         print(f"Time remaining: {time_remaining:.2f} minutes")
-        print(f"Average time per node: {60*time_per_iter:.2f} seconds")
+        print(f"Average time per node: {time_per_iter:.2f} seconds")
         print("node: "+str(n)+" uses "+str(len(xs))+" data points")                        
     
     Npoints=len(xs)
@@ -239,24 +220,29 @@ for n in range(nn):
         ys=ysp
         zs=zsp
     
-    ziD[n]=GM.InverseDistance(xs,ys,zs,xp,yp,2)
-    VarObs=(np.mean(np.abs(zs))/100.)**2
+#    VarObs=(np.mean(np.abs(zs))/100.)**2
+    VarObs=(np.max(np.abs(zs))/100.)**2
     #VarBG=((np.max(zs)-np.min(zs))/10.)**2
-    #VarBG=(np.std(zs)/2.)**2
+    VarBG=(np.std(zs))**2
     #stderr=np.std(zs)/10.
     if VarObs < 1:
         VarObs  = 1.
     #VarBG=VarObs*25.
-    VarBG=1.
-    ziOK[n]=GM.GaussMarkovUnkMean(xs, ys, zs, xp, yp,LSp, 2, VarObs,VarBG)
-    ziSK[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, 2, VarObs,VarBG)
+    #VarBG=1.
+    ziID[n]=GM.InverseDistance(xs,ys,zs,xp,yp,2)
+    ziGMU[n]=GM.GaussMarkovUnkMean(xs, ys, zs, xp, yp,LSp, 2, VarObs,VarBG)
+    ziGMN[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, 2, VarObs,VarBG,"Nearest")
+    ziGMM[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, 2, VarObs,VarBG,"Mean")
+    ziGM0[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, 2, VarObs,VarBG,"Zero")
     D=GM.Distance(xs,ys,xp,yp)
     jc=np.argmin(D)
     ziClosest[n]=zs[jc]
-    
-np.savetxt(floutID,  ziD, fmt='%.6f', delimiter='\n')
-np.savetxt(floutGM,  ziSK, fmt='%.6f', delimiter='\n')
-np.savetxt(floutGMUnk,  ziOK, fmt='%.6f', delimiter='\n')
+
+np.savetxt(floutID ,  ziID , fmt='%.6f', delimiter='\n')
+np.savetxt(floutGMN,  ziGMN, fmt='%.6f', delimiter='\n')
+np.savetxt(floutGMM,  ziGMM, fmt='%.6f', delimiter='\n')
+np.savetxt(floutGM0,  ziGM0, fmt='%.6f', delimiter='\n')
+np.savetxt(floutGMU,  ziGMU, fmt='%.6f', delimiter='\n')
 np.savetxt(floutClosest,  ziClosest, fmt='%.6f', delimiter='\n')
 np.savetxt(floutNpts, NumPoints, fmt='%d', delimiter='\n')
     
