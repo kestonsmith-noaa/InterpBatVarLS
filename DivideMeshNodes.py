@@ -46,11 +46,20 @@ def WriteInterpJobscript(fl,N, ComputeNodes):
         f.write("srun python3  InterpolateCRM.part.py $SLURM_ARRAY_TASK_ID > InterpJob.$SLURM_ARRAY_TASK_ID.out \n")
         f.write("wait \n")
         f.write("##run this after the full job array is compleate, need to test \n")
-        f.write("cat "+OutDir+"GM.*.txt > GM."+mshnm+".txt \n")
-        f.write("cat "+OutDir+"GMUnk.*.txt > GMUnk."+mshnm+".txt \n")
+        f.write("cat "+OutDir+"GM0.*.txt > GM0."+mshnm+".txt \n")
+        f.write("cat "+OutDir+"GMM.*.txt > GMM."+mshnm+".txt \n")
+        f.write("cat "+OutDir+"GMN.*.txt > GMN."+mshnm+".txt \n")
+        f.write("cat "+OutDir+"GMU.*.txt > GMU."+mshnm+".txt \n")
         f.write("cat "+OutDir+"InvDist.*.txt > InvDist."+mshnm+".txt \n")
         f.write("cat "+OutDir+"NDataPoints.*.txt > NDataPoints."+mshnm+".txt \n")
         f.write("cat "+OutDir+"ClosestValue.*.txt > ClosestValue."+mshnm+".txt \n")
+#floutID=OutDir+'InvDist.'+Nzp+'.txt'
+#floutGMM=OutDir+'GMM.'+Nzp+'.txt'
+#floutGMN=OutDir+'GMN.'+Nzp+'.txt'
+#floutGM0=OutDir+'GM0.'+Nzp+'.txt'
+#floutGMU=OutDir+'GMU.'+Nzp+'.txt'
+#floutClosest=OutDir+'ClosestValue.'+Nzp+'.txt'
+#floutNpts=OutDir+'NDataPoints.'+Nzp+'.txt'
 
 # Create the output directory------------------------------------------
 try:
