@@ -62,8 +62,8 @@ flnms=[
     "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc",
 #    "crm_socal_1as_vers2.nc.S250m.nc",# mostly redundent with 6 but some extra regions, need to synthesize
     ]
- 
-Dmin=10./1000.# minimum distance between observation points in km
+Zmax=0. # maximum value to include in interpolation 
+Dmin=10./1000.# minimum distance between observation points in km, prevent singularity
 lambdaLL=.025
 NpointsMax=1000
 xlist=[]
@@ -187,10 +187,11 @@ for n in range(nn):
                                         IncludePoint=False #END -check for near duplicate points
                                 if IncludePoint: # first point
                                     zd=float(z.data)
+                                    zd=min(zd,Zmax) # trunkate interpolant to Zmax<=0
                                     xs.append(x[kx])
                                     ys.append(y[ky])
                                     zs.append(zd)
-    if n % 100 == 0:
+    if n % 10 == 0:
         print("interpolating to:"+str(yp)+":"+str(xp))
         t1 = time.time()
         time_per_iter = (t1 - t0) / (n + 1)
