@@ -8,6 +8,7 @@ import sys
 from scipy.interpolate import RegularGridInterpolator
 #import re
 import FiniteElementMeshRoutines as FE
+import random
 
 mshnm="RWPStest"
 mesh="meshes/"+mshnm+".msh"
@@ -45,14 +46,26 @@ def WriteInterpJobscript(fl,N, ComputeNodes):
         f.write("pip list \n")
         f.write("srun python3  InterpolateCRM.part.py $SLURM_ARRAY_TASK_ID > InterpJob.$SLURM_ARRAY_TASK_ID.out \n")
         f.write("wait \n")
-        f.write("##run this after the full job array is compleate, need to test \n")
-        f.write("cat "+OutDir+"GM0.*.txt > GM0."+mshnm+".txt \n")
-        f.write("cat "+OutDir+"GMM.*.txt > GMM."+mshnm+".txt \n")
-        f.write("cat "+OutDir+"GMN.*.txt > GMN."+mshnm+".txt \n")
-        f.write("cat "+OutDir+"GMU.*.txt > GMU."+mshnm+".txt \n")
-        f.write("cat "+OutDir+"InvDist.*.txt > InvDist."+mshnm+".txt \n")
-        f.write("cat "+OutDir+"NDataPoints.*.txt > NDataPoints."+mshnm+".txt \n")
-        f.write("cat "+OutDir+"ClosestValue.*.txt > ClosestValue."+mshnm+".txt \n")
+        f.write("## Run this after the full job array is compleate.\n")
+        f.write("## Patch randomly shuffled fields in orgigonal order.\n")
+        
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" GMM\n")
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" GM0\n")
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" GMN\n")
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" GMU\n")
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" InvDist\n")
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" NDataPoints\n")
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" ClosestValue\n")
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" LengthScale\n")
+    
+# for unsorted fields with leading zeros filename convention
+#        f.write("cat "+OutDir+"GM0.*.txt > GM0."+mshnm+".txt \n")
+#        f.write("cat "+OutDir+"GMM.*.txt > GMM."+mshnm+".txt \n")
+#        f.write("cat "+OutDir+"GMN.*.txt > GMN."+mshnm+".txt \n")
+#        f.write("cat "+OutDir+"GMU.*.txt > GMU."+mshnm+".txt \n")
+#        f.write("cat "+OutDir+"InvDist.*.txt > InvDist."+mshnm+".txt \n")
+#        f.write("cat "+OutDir+"NDataPoints.*.txt > NDataPoints."+mshnm+".txt \n")
+#        f.write("cat "+OutDir+"ClosestValue.*.txt > ClosestValue."+mshnm+".txt \n")
 #floutID=OutDir+'InvDist.'+Nzp+'.txt'
 #floutGMM=OutDir+'GMM.'+Nzp+'.txt'
 #floutGMN=OutDir+'GMN.'+Nzp+'.txt'
@@ -80,27 +93,38 @@ areaE=FE.ElementArea(xi, yi, ei)
 lsN=FE.ComputeNodeLengthScale(lsE, areaE, ei)
 np.savetxt("LengthScaleNodes.txt",  lsN, fmt='%.6f', delimiter='\n')
 
+# randomly sort nodes for roughly equal jobs size
+# nodes within CRM envelope use far more compute than
+# open ocean nodes with fewer points used in interpolation
+nn=len(xi)
+Nodes = list(range( nn ))
+#print(Nodes)
+random.shuffle(Nodes) # randomize order of nodes for equitable job load
+#print(Nodes)
 
 Nparts=int(sys.argv[1])
+
 nn=xi.shape[0]
 NodesPerProc=math.ceil(nn/Nparts)
 print(str(NodesPerProc)+ " " + str(nn))
 a = range(nn)
+
 NodeList = [] 
 for i in range(0, len(a), NodesPerProc):  # Slice list in steps of n
     NodeList.append(a[i:i + NodesPerProc])
 
+print("NodeList")
 print(NodeList)
 for k in range(Nparts):
     flo=OutDir+'NodeList.'+str(k)+'.txt'
     f=open(flo, 'w')
     f.write("List of nodes for job "+str(k) + "\n")
     List=NodeList[k]
-    List
     n=len(List)
     f.write(str(n) + "\n")
     for j in range(n):
-        f.write(str(List[j]) + '\n')
+        #f.write(str(List[j]) + '\n') # sequential order of nodes, output can be cat > back together
+        f.write(str(Nodes[List[j]]) + '\n') # random order of nodes
     f.close
 
 #write jobcard to do interpolation

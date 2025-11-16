@@ -109,27 +109,35 @@ lsN=FE.ComputeNodeLengthScale(lsE, areaE, ei)
 print(np.min(lsN))
 print(np.mean(lsN))
 print(np.max(lsN))
-N=int(sys.argv[1])
-Nzp=ZeroPadIntStr(N,5)
-print("N= "+str(N)+" Nzp=",Nzp)
-fln=OutDir+'NodeList.'+str(N)+'.txt'
 
-floutID=OutDir+'InvDist.'+Nzp+'.txt'
-floutGMM=OutDir+'GMM.'+Nzp+'.txt'
-floutGMN=OutDir+'GMN.'+Nzp+'.txt'
-floutGM0=OutDir+'GM0.'+Nzp+'.txt'
-floutGMU=OutDir+'GMU.'+Nzp+'.txt'
-floutClosest=OutDir+'ClosestValue.'+Nzp+'.txt'
-floutNpts=OutDir+'NDataPoints.'+Nzp+'.txt'
+N=int(sys.argv[1])
+
+#Nzp=ZeroPadIntStr(N,5)
+#print("N= "+str(N)+" Nzp=",Nzp)
+
+fln=OutDir+'NodeList.'+str(N)+'.txt'
+floutID=OutDir+'InvDist.'+str(N)+'.txt'
+floutGMM=OutDir+'GMM.'+str(N)+'.txt'
+floutGMN=OutDir+'GMN.'+str(N)+'.txt'
+floutGM0=OutDir+'GM0.'+str(N)+'.txt'
+floutGMU=OutDir+'GMU.'+str(N)+'.txt'
+floutClosest=OutDir+'ClosestValue.'+str(N)+'.txt'
+floutNpts=OutDir+'NDataPoints.'+str(N)+'.txt'
+floutLLS=OutDir+'LengthScale.'+str(N)+'.txt'
 
 #read in nodes to interpolate to
 f=open(fln,"r")
 header = f.readline()
+"""
 header = f.readline() # number of nodes
 nn0=int(header)
 nn = re.findall(r'\d+', header)
 nn=int(nn[0])
-print("nn0 ="+str(nn0))
+"""
+nn =int( f.readline())
+print("XXX nn0 ="+str(nn))
+
+
 #make local node set to interpolate to
 xil=np.zeros(nn)
 yil=np.zeros(nn)
@@ -152,12 +160,14 @@ ziGMN=np.zeros(nn)
 ziGMM=np.zeros(nn)
 ziGM0=np.zeros(nn)
 ziClosest=np.zeros(nn)
+LocalLengthScale=np.zeros(nn)
 
 t0 = time.time()
 for n in range(nn):
     xp=xil[n]%360
     yp=yil[n]
     LSp=2.0*LSl[n]#LocalLengthScale for interpolation
+    LocalLengthScale[n]=LSp
     xs=[]
     ys=[]
     zs=[]
@@ -230,11 +240,11 @@ for n in range(nn):
         VarObs  = 1.
     #VarBG=VarObs*25.
     #VarBG=1.
-    ziID[n]=GM.InverseDistance(xs,ys,zs,xp,yp,2)
-    ziGMU[n]=GM.GaussMarkovUnkMean(xs, ys, zs, xp, yp,LSp, 2, VarObs,VarBG)
-    ziGMN[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, 2, VarObs,VarBG,"Nearest")
-    ziGMM[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, 2, VarObs,VarBG,"Mean")
-    ziGM0[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, 2, VarObs,VarBG,"Zero")
+    ziID[n]=GM.InverseDistance(xs,ys,zs,xp,yp)
+    ziGMU[n]=GM.GaussMarkovUnkMean(xs, ys, zs, xp, yp,LSp, VarObs,VarBG)
+    ziGMN[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Nearest")
+    ziGMM[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Mean")
+    ziGM0[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Zero")
     D=GM.Distance(xs,ys,xp,yp)
     jc=np.argmin(D)
     ziClosest[n]=zs[jc]
@@ -246,5 +256,6 @@ np.savetxt(floutGM0,  ziGM0, fmt='%.6f', delimiter='\n')
 np.savetxt(floutGMU,  ziGMU, fmt='%.6f', delimiter='\n')
 np.savetxt(floutClosest,  ziClosest, fmt='%.6f', delimiter='\n')
 np.savetxt(floutNpts, NumPoints, fmt='%d', delimiter='\n')
+np.savetxt(floutLLS, LocalLengthScale, fmt='%d', delimiter='\n')
     
     
