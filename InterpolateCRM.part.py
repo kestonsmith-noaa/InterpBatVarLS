@@ -128,12 +128,6 @@ floutLLS=OutDir+'LengthScale.'+str(N)+'.txt'
 #read in nodes to interpolate to
 f=open(fln,"r")
 header = f.readline()
-"""
-header = f.readline() # number of nodes
-nn0=int(header)
-nn = re.findall(r'\d+', header)
-nn=int(nn[0])
-"""
 nn =int( f.readline())
 print("XXX nn0 ="+str(nn))
 
@@ -256,6 +250,6 @@ np.savetxt(floutGM0,  ziGM0, fmt='%.6f', delimiter='\n')
 np.savetxt(floutGMU,  ziGMU, fmt='%.6f', delimiter='\n')
 np.savetxt(floutClosest,  ziClosest, fmt='%.6f', delimiter='\n')
 np.savetxt(floutNpts, NumPoints, fmt='%d', delimiter='\n')
-np.savetxt(floutLLS, LocalLengthScale, fmt='%d', delimiter='\n')
+np.savetxt(floutLLS, LocalLengthScale, fmt='%.6f', delimiter='\n')
     
     
