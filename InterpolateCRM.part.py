@@ -128,15 +128,7 @@ floutLLS=OutDir+'LengthScale.'+str(N)+'.txt'
 #read in nodes to interpolate to
 f=open(fln,"r")
 header = f.readline()
-"""
-header = f.readline() # number of nodes
-nn0=int(header)
-nn = re.findall(r'\d+', header)
-nn=int(nn[0])
-"""
 nn =int( f.readline())
-print("XXX nn0 ="+str(nn))
-
 
 #make local node set to interpolate to
 xil=np.zeros(nn)
@@ -147,12 +139,10 @@ for k in range(nn):
     xil[k]=xi[j]
     yil[k]=yi[j]
     LSl[k]=lsN[j]
-    print(str(k)+" " +str(j)+" "+str(LSl[k]))
 
 nn=len(xil)
 nf=len(flnms)
 
-#nn=103
 NumPoints=np.zeros(nn)
 ziID=np.zeros(nn)
 ziGMU=np.zeros(nn)
@@ -166,7 +156,7 @@ t0 = time.time()
 for n in range(nn):
     xp=xil[n]%360
     yp=yil[n]
-    LSp=2.0*LSl[n]#LocalLengthScale for interpolation
+    LSp=LSl[n]#LocalLengthScale for interpolation
     LocalLengthScale[n]=LSp
     xs=[]
     ys=[]
@@ -175,11 +165,15 @@ for n in range(nn):
     for j in range(nf):
         if all([ xp < xmax[j],xp > xmin[j],yp < ymax[j],yp > ymin[j]]):
             x=np.array(xlist[j][:])
-            y=np.array(ylist[j][:] )
+            y=np.array(ylist[j][:])
+            lambdaLL0=lambdaLL
             fl=flnms[j]
-            jx=np.array(np.where( np.abs(xp-x) < lambdaLL ))
+            "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
+            if j==nf-1: # sparser dataset
+                lambdaLL0=5.*lambdaLL # pull more points from sparser global dataset
+            jx=np.array(np.where( np.abs(xp-x) < lambdaLL0 ))
             jx=list(itertools.chain.from_iterable(jx))
-            jy=np.array(np.where( np.abs(yp-y) < lambdaLL ))
+            jy=np.array(np.where( np.abs(yp-y) < lambdaLL0 ))
             jy=list(itertools.chain.from_iterable(jy))
             data = nc.Dataset(fl,"r")
             for kx in jx:
@@ -231,23 +225,25 @@ for n in range(nn):
         ys=ysp
         zs=zsp
     
-#    VarObs=(np.mean(np.abs(zs))/100.)**2
-    VarObs=(np.max(np.abs(zs))/100.)**2
+    VarObs=(np.mean(np.abs(zs))/100.)**2
+#    VarObs=(np.max(np.abs(zs))/100.)**2
     #VarBG=((np.max(zs)-np.min(zs))/10.)**2
     VarBG=(np.std(zs))**2
     #stderr=np.std(zs)/10.
-    if VarObs < 1:
+    if VarObs < 1.:
         VarObs  = 1.
     #VarBG=VarObs*25.
     #VarBG=1.
+    
     ziID[n]=GM.InverseDistance(xs,ys,zs,xp,yp)
     ziGMU[n]=GM.GaussMarkovUnkMean(xs, ys, zs, xp, yp,LSp, VarObs,VarBG)
     ziGMN[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Nearest")
     ziGMM[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Mean")
     ziGM0[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Zero")
-    D=GM.Distance(xs,ys,xp,yp)
+    D=GM.DistanceV(xs,ys,xp,yp)
     jc=np.argmin(D)
     ziClosest[n]=zs[jc]
+    
 
 np.savetxt(floutID ,  ziID , fmt='%.6f', delimiter='\n')
 np.savetxt(floutGMN,  ziGMN, fmt='%.6f', delimiter='\n')

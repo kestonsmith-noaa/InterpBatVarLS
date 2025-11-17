@@ -7,7 +7,6 @@ variance=1.
 deg2km=111.132954
 deg2rad=np.pi/180
 UseMean=True
-MeanComp="Mean"#,"Median","Zero"
 CovExp=2
 IDExp=2
 
@@ -25,12 +24,10 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,Vobs,V,MeanTyp):
     f = np.zeros(nx)
     C = np.zeros((nx,nx))
     for j in range(nx):
-        for k in range(nx):
-            d = Distance(x[j],y[j],x[k],y[k])
-            C[j,k]=CovarianceDistance(d,covmod,LengthScale,V)
+        C[j,range(nx)]=CovarianceDistance(d,covmod,LengthScale,V)
         C[j,j]=C[j,j] + Vobs
-        d = Distance(x[j],y[j],xi,yi)
-        f[j]=CovarianceDistance(d,covmod,LengthScale,V)
+    d = DistanceV(x,y,xi,yi)
+    f = CovarianceDistance(d,covmod,LengthScale,V)
     detC = np.linalg.det(C)
     if np.isclose(detC, 0):
         zi=float("inf")
@@ -56,14 +53,13 @@ def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,Vobs,V):
     f = np.zeros(nx+1)
     C = np.zeros((nx+1,nx+1))
     for j in range(nx):
-        for k in range(nx):
-            d = Distance(x[j],y[j],x[k],y[k])
-            C[j,k]=CovarianceDistance(d,covmod,LengthScale,V)
+        d = DistanceV(x,y,x[j],y[j])
+        C[j,range(nx)]=CovarianceDistance(d,covmod,LengthScale,V)
         C[j,j]=C[j,j] + Vobs
-        d = Distance(x[j],y[j],xi,yi)
-        f[j]=CovarianceDistance(d,covmod,LengthScale,V)
         C[nx,j]=1
         C[j,nx]=1
+    d = DistanceV(x,y,xi,yi)
+    f[range(nx)] = CovarianceDistance(d,covmod,LengthScale,V)
     C[nx,nx]=0
     f[nx]=1
     detC = np.linalg.det(C)
@@ -72,26 +68,31 @@ def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,Vobs,V):
         print("Cov matrix is likely singular.")
     else:
         w = np.linalg.solve(C, f)
-        wp = np.zeros(nx)
-        for j in range(nx):
-            wp[j]=w[j]
-        zi= np.dot(wp,z)
+        zi= np.dot(w[range(nx)],z)
     return zi
+
+
+def DistanceV(x,y,x0,y0): #distance between list x,y and point x0,y0
+    n=len(x)
+    d=np.zeros(n)
+    d=np.sqrt( 
+        ( deg2km*np.cos( deg2rad*y0 )*(x-x0) )**2 + 
+        ( deg2km*(y-y0))**2  ) 
+    return d
 
 #from geopy import distance
 def Distance(x0,y0,x1,y1):
 #    d = distance.great_circle(y0,x0,y1,x1).km
     d=np.sqrt( 
         ( deg2km*np.cos(deg2rad*(y0+y1)/2 )*(x1-x0) )**2 + 
-        (deg2km*(y1-y0))**2  ) 
+        ( deg2km*(y1-y0))**2  ) 
     return d
 
 def CovarianceDistance(d,model,ls,v):
     if model == "Exp":
         c = v*np.exp(- (d/ls )**CovExp )
     if model == "Sph":
-        c = v*( 1 - 1.5*(d/ls) + .5*((d/ls)**3)   )
-        if d > ls:
-            c=0
+        c = v*( 1. - 1.5*(d/ls) + .5*((d/ls)**3)   )
+        c[np.where(d>ls)]=0.
     return c
         

@@ -85,9 +85,6 @@ def lengthscale(x, y, e):
         D3=Distance(x1,y1,x2,y2)
         D1=Distance(x2,y2,x3,y3)
         D2=Distance(x3,y3,x1,y1)
-#        D3 = distance.great_circle([y1,x1],[y2,x2]).km
-#        D1 = distance.great_circle([y2,x2],[y3,x3]).km
-#        D2 = distance.great_circle([y3,x3],[y1,x1]).km
         lengthscaleE[k]=(D1+D2+D3)/3  
         # mean edge length
     return lengthscaleE
@@ -107,9 +104,6 @@ def ElementArea(x, y, e):
         D3=Distance(x1,y1,x2,y2)
         D1=Distance(x2,y2,x3,y3)
         D2=Distance(x3,y3,x1,y1)
-#        D3 = distance.great_circle([y1,x1],[y2,x2]).km
-#        D1 = distance.great_circle([y2,x2],[y3,x3]).km
-#        D2 = distance.great_circle([y3,x3],[y1,x1]).km
         S=(D1+D2+D3)/2
         A=np.sqrt(S * (S - D1) * (S - D2) * (S - D3))
         AreaE[k]=A
@@ -117,7 +111,7 @@ def ElementArea(x, y, e):
 
 def ComputeNodeLengthScale(lsE, areaE, e):
     nn=np.max(e[:])
-    print("nn="+str(nn))
+    print("ComputeNodeLengthScale nn="+str(nn))
     ne=e.shape[0]
     lsT=np.zeros(nn)
     areaT=np.zeros(nn)

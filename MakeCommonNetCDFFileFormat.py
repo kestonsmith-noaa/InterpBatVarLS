@@ -51,8 +51,14 @@ data0 = nc.Dataset(flin,"r")
 x=np.asarray(data0["x"][:])
 y=np.asarray(data0["y"][:])
 z=np.asarray(data0["z"][:,:])
+
+j=np.where(np.isnan(z))
+z[j]=-99999
+
+#zp=z.filled(0)#remove mask
 nx=len(x)
 ny=len(y)
+
 with nc.Dataset(flout, 'w', format='NETCDF4') as ncout:
         # Create dimensions
     ncout.createDimension('lon', nx)  # Unlimited dimension
@@ -93,6 +99,10 @@ data0 = nc.Dataset(flin,"r")
 x=np.asarray(data0["x"][:])
 y=np.asarray(data0["y"][:])
 z=np.asarray(data0["z"][:,:])
+
+j=np.where(np.isnan(z))
+z[j]=-99999
+
 nx=len(x)
 ny=len(y)
 with nc.Dataset(flout, 'w', format='NETCDF4') as ncout:
@@ -126,7 +136,7 @@ with nc.Dataset(flout, 'w', format='NETCDF4') as ncout:
     z_var[:,:]=z[:,:]
     
     ncout.close
-
+"""
 flin="RTopo_2_0_4_GEBCO_v2023_60sec_pixel.nc"
 flout="RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
 
@@ -176,5 +186,5 @@ with nc.Dataset(flout, 'w', format='NETCDF4') as ncout:
     z_var[:,:]=z[:,:]
     
     ncout.close
-    
+"""
     

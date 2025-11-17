@@ -66,7 +66,8 @@ for fl in flnms:
     z=z[Nstart :: Nsubsample,Nstart :: Nsubsample]
     nx=len(x)
     ny=len(y)
-    flout=fl+'.S250m.nc'
+#    flout=fl+'.S250m.nc'
+    flout=fl+'.S250m.VB.nc'
         # This file has an un recognized fill value
 #    if fl == "crm_vol10_2023.nc": 
     if ( (fl == "crm_vol10_2023.nc") or (fl == "crm_socal_1as_vers2.nc") ) : # This file has an un recognized fill value
