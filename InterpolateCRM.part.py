@@ -252,6 +252,6 @@ np.savetxt(floutGM0,  ziGM0, fmt='%.6f', delimiter='\n')
 np.savetxt(floutGMU,  ziGMU, fmt='%.6f', delimiter='\n')
 np.savetxt(floutClosest,  ziClosest, fmt='%.6f', delimiter='\n')
 np.savetxt(floutNpts, NumPoints, fmt='%d', delimiter='\n')
-np.savetxt(floutLLS, LocalLengthScale, fmt='%d', delimiter='\n')
+np.savetxt(floutLLS, LocalLengthScale, fmt='%.6f', delimiter='\n')
     
     
