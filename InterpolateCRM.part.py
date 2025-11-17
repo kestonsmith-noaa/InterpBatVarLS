@@ -62,7 +62,9 @@ flnms=[
     "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc",
 #    "crm_socal_1as_vers2.nc.S250m.nc",# mostly redundent with 6 but some extra regions, need to synthesize
     ]
-Zmax=0. # maximum value to include in interpolation 
+Zmin=-11000. #deepest legit ocean depth value in case of mask fail 
+# nescesarry for data sets "crm_vol6_2023.nc.S250m.nc" and "crm_vol8_2023.nc.S250m.nc"
+Zmax=0. # maximum value to include in interpolation - zero out land values or ignore land 
 Dmin=10./1000.# minimum distance between observation points in km, prevent singularity
 lambdaLL=.025
 NpointsMax=1000
@@ -189,8 +191,11 @@ for n in range(nn):
                                     if np.min(d)<Dmin:
                                         print("near duplicate point at distance: "+str(np.min(d))+" for node "+str(n))
                                         IncludePoint=False #END -check for near duplicate points
+                                zd=float(z.data)
+                                if zd < Zmin:#double check mask fail and bad fill value
+                                        IncludePoint=False
                                 if IncludePoint: # first point
-                                    zd=float(z.data)
+                                    #zd=float(z.data)
                                     zd=min(zd,Zmax) # trunkate interpolant to Zmax<=0
                                     xs.append(x[kx])
                                     ys.append(y[ky])
