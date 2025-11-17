@@ -24,6 +24,7 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,Vobs,V,MeanTyp):
     f = np.zeros(nx)
     C = np.zeros((nx,nx))
     for j in range(nx):
+        d = DistanceV(x,y,x[j],y[j])
         C[j,range(nx)]=CovarianceDistance(d,covmod,LengthScale,V)
         C[j,j]=C[j,j] + Vobs
     d = DistanceV(x,y,xi,yi)
