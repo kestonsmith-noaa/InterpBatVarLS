@@ -84,7 +84,7 @@ print(nxl)
 print(nyl)
 print(len(xlist))
 
-mesh="meshes/global_1deg_unstr.msh"
+mesh="meshes/RWPS10to1km.msh"
 
 xi, yi, ei = FE.loadWW3MeshCoords(mesh)
 
