@@ -7,13 +7,69 @@ import re
 deg2km=111.132954
 deg2rad=np.pi/180
 
+def WriteWW3Mesh(fl,xi,yi,zi,ei):
+    f=open(fl, 'r')
+    header = f.readline() 
+    header = f.readline() 
+    header = f.readline() 
+    header = f.readline() 
+    header = f.readline() # number of nodes
+    nn = re.findall(r'\d+', header)
+    nn=int(nn[0])
+    print(nn)
+    xi=np.zeros(nn)
+    yi=np.zeros(nn)
+    zi=np.zeros(nn)
+    k=0
+    for i in range(nn):
+        A = f.readline()
+        #print(A)
+        values = A.split(" ")
+        #print(values)
+        if len(values)>4:
+            xi[k]=values[2]
+            yi[k]=values[4]
+            zi[k]=values[6]
+        else:
+            xi[k]=values[1]
+            yi[k]=values[2]
+            zi[k]=values[3]
+#        print(str(xi[k])+" "+str(yi[k]))
+        k=k+1
+    print("number of nodes read: "+str(k))
+    header = f.readline() 
+    header = f.readline() 
+    header = f.readline() # number of elements
+    ne=int(header)
+    print("ne=",str(ne))
+    ei=np.zeros((ne,3), dtype=int)
+    #print(ei)
+    k=0
+    for i in range(ne):
+        A = f.readline()
+        #print(A)
+        values = A.split(" ")
+        #print(values)
+        #need to factor bnd nodes
+        if len(values)>15:
+            ei[k,0]=int(values[12])
+            ei[k,1]=int(values[14])
+            ei[k,2]=int(values[16])
+            k=k+1
+        elif len(values)>7:
+            ei[k,0]=int(values[6])
+            ei[k,1]=int(values[7])
+            ei[k,2]=int(values[8])
+            k=k+1
+    print("number of elements read: "+str(k))
+    return xi, yi, zi, ei
+
 def Distance(x0,y0,x1,y1):
 #    d = distance.great_circle(y0,x0,y1,x1).km
     d=np.sqrt( 
         ( deg2km*np.cos(deg2rad*(y0+y1)/2 )*(x1-x0) )**2 + 
         ( deg2km*(y1-y0))**2  ) 
     return d
-
 
 def loadWW3MeshCoords(fl):
     f=open(fl, 'r')
@@ -68,6 +124,113 @@ def loadWW3MeshCoords(fl):
             k=k+1
     print("number of elements read: "+str(k))
     return xi, yi, ei
+
+
+def loadWW3Mesh(fl):
+    f=open(fl, 'r')
+    header = f.readline() 
+    header = f.readline() 
+    header = f.readline() 
+    header = f.readline() 
+    header = f.readline() # number of nodes
+    nn=int(header)
+    print("nn = "+str(nn))
+    xi=np.zeros(nn)
+    yi=np.zeros(nn)
+    zi=np.zeros(nn)
+    k=0
+    for i in range(nn):
+        A = f.readline()
+        #print(A)
+        values = A.split(" ")
+        #print(values)
+        if len(values)>4:
+            xi[k]=values[2]
+            yi[k]=values[4]
+            zi[k]=values[6]
+        else:
+            xi[k]=values[1]
+            yi[k]=values[2]
+            zi[k]=values[3]
+#        print(str(xi[k])+" "+str(yi[k]))
+        k=k+1
+    print("number of nodes read: "+str(k))
+    header = f.readline() 
+    header = f.readline() 
+    header = f.readline() # number of elements
+    ne=int(header)#includes boundary nodes and actual elements
+    print("ne="+str(ne)+" -includes boundary nodes")
+    nbnd=0
+    bnd=[]
+    eix=np.zeros((ne,3), dtype=int)
+    k=0
+    for i in range(ne):
+        A = f.readline()
+        #print(A)
+        values = A.split(" ")
+        #print(values)
+        if len(values) == 6:
+            if int(values[2])==2:
+                bnd.append(int(values[5]))
+                nbnd=nbnd+1
+        if len(values)>15:
+            eix[k,0]=int(values[12])
+            eix[k,1]=int(values[14])
+            eix[k,2]=int(values[16])
+            k=k+1
+        elif len(values)>7:
+            eix[k,0]=int(values[6])
+            eix[k,1]=int(values[7])
+            eix[k,2]=int(values[8])
+            k=k+1
+    ei=eix[range(k),:]
+    print("number of elements read: "+str(k))
+    return xi, yi, zi, ei, bnd
+
+#$MeshFormat
+#2 0 8
+#$EndMeshFormat
+#$Nodes
+#1083499
+#1 -48.304372 -27.223660 47.414082
+#2 -12.838694 45.529460 4798.802477
+
+def WriteWW3Mesh(flo,x,y,z,e,bnd):
+    
+    f=open(flo, 'w')
+    f.write("$MeshFormat\n")
+    f.write("2 0 8\n")
+    f.write("$EndMeshFormat\n")
+    f.write("$Nodes\n")
+    nn=len(x)
+    f.write(str(nn)+"\n")
+    for k in range(nn):
+        f.write(f"{k+1:8d} {x[k]:6f} {y[k]:6f} {z[k]:5f} \n")
+
+#1083499 -90.284537 29.221884 0.106973
+#$EndNodes
+#$Elements
+#2099027
+#1 15 2 0 0 570
+#2 15 2 0 0 571
+#3 15 2 0 0 572
+
+    ne=e.shape[0]
+    nbnd=len(bnd)
+    f.write("$EndNodes\n")
+    f.write("$Elements\n")
+    f.write(str(ne+nbnd)+"\n")
+    for k in range(nbnd):
+        f.write(str(k+1)+" 15 2 0 0 " + str(bnd[k])+"\n")
+#1619 15 2 0 0 1076992
+#1620 15 2 0 0 1078150
+#1621 2 3 0 1 0 85028 85030 2
+#1622 2 3 0 2 0 2 85030 85015
+#1623 2 3 0 3 0 84460 2 85015
+
+    for k in range(ne):
+        f.write(str(nbnd+k+1)+" 2 3 0 1 0 "+str(e[k,0])+" "+str(e[k,1])+" "+str(e[k,2])+"\n")
+    f.close
 
 
 def lengthscale(x, y, e):
