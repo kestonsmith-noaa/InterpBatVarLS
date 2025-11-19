@@ -19,6 +19,7 @@ import itertools
 import FiniteElementMeshRoutines as FE
 import GaussMarkov as GM
 
+import gc
 """
 #too much extra resolution for our purposes
 flnms=[
@@ -137,6 +138,9 @@ for k in range(nn):
     yil[k]=yi[j]
     LSl[k]=lsN[j]
 
+del xi yi ei lsN #clear global mesh variables
+gc.collect()
+
 nn=len(xil)
 nf=len(flnms)
 #set search width for each data set based on expected
@@ -147,7 +151,7 @@ for j in range(nf):
     dx=np.abs(x[1]-x[0])
     SearchWidth[j]=dx*float(NxTarget)/2.
     print("search width(deg Lat lon) for file: "+flnms[j]+" = ",str(SearchWidth[j]))
-SearchWidth[nf-1]=.75*SearchWidth[nf-1]
+SearchWidth[nf-1]=.75*SearchWidth[nf-1] # smaller number for global bathy set
     
 NumPoints=np.zeros(nn)
 ziID=np.zeros(nn)

@@ -141,9 +141,7 @@ def loadWW3Mesh(fl):
     k=0
     for i in range(nn):
         A = f.readline()
-        #print(A)
         values = A.split(" ")
-        #print(values)
         if len(values)>4:
             xi[k]=values[2]
             yi[k]=values[4]
@@ -152,7 +150,6 @@ def loadWW3Mesh(fl):
             xi[k]=values[1]
             yi[k]=values[2]
             zi[k]=values[3]
-#        print(str(xi[k])+" "+str(yi[k]))
         k=k+1
     print("number of nodes read: "+str(k))
     header = f.readline() 
@@ -187,16 +184,7 @@ def loadWW3Mesh(fl):
     print("number of elements read: "+str(k))
     return xi, yi, zi, ei, bnd
 
-#$MeshFormat
-#2 0 8
-#$EndMeshFormat
-#$Nodes
-#1083499
-#1 -48.304372 -27.223660 47.414082
-#2 -12.838694 45.529460 4798.802477
-
 def WriteWW3Mesh(flo,x,y,z,e,bnd):
-    
     f=open(flo, 'w')
     f.write("$MeshFormat\n")
     f.write("2 0 8\n")
@@ -206,15 +194,6 @@ def WriteWW3Mesh(flo,x,y,z,e,bnd):
     f.write(str(nn)+"\n")
     for k in range(nn):
         f.write(f"{k+1:8d} {x[k]:6f} {y[k]:6f} {z[k]:5f} \n")
-
-#1083499 -90.284537 29.221884 0.106973
-#$EndNodes
-#$Elements
-#2099027
-#1 15 2 0 0 570
-#2 15 2 0 0 571
-#3 15 2 0 0 572
-
     ne=e.shape[0]
     nbnd=len(bnd)
     f.write("$EndNodes\n")
@@ -222,12 +201,6 @@ def WriteWW3Mesh(flo,x,y,z,e,bnd):
     f.write(str(ne+nbnd)+"\n")
     for k in range(nbnd):
         f.write(str(k+1)+" 15 2 0 0 " + str(bnd[k])+"\n")
-#1619 15 2 0 0 1076992
-#1620 15 2 0 0 1078150
-#1621 2 3 0 1 0 85028 85030 2
-#1622 2 3 0 2 0 2 85030 85015
-#1623 2 3 0 3 0 84460 2 85015
-
     for k in range(ne):
         f.write(str(nbnd+k+1)+" 2 3 0 1 0 "+str(e[k,0])+" "+str(e[k,1])+" "+str(e[k,2])+"\n")
     f.close

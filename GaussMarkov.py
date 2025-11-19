@@ -12,10 +12,6 @@ IDExp=2
 
 def InverseDistance(x,y,z,xi,yi):
     d=DistanceV(x,y,xi,yi)
-#    nx=len(x)
-#    d=np.zeros(nx)
-#    for j in range(nx):
-#        d[j] = Distance(x[j],y[j],xi,yi)
     w=1.0/(d**IDExp)
     zi=np.dot( z, w )/np.sum( w )
     return zi
