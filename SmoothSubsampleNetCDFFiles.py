@@ -22,20 +22,31 @@ flnms=[
     "crm_vol8_2023.nc",#dx= 0.0008,1200 / deg
     ]
 
+flnms=["hurl_bathy_60m_nwhi.CRMformat.nc"]
+flnms=[
+    "pibhmc_bathy_60m_guam.crm.nc",
+    "ngdc_bathy_90m_amsamoa.crm.nc"
+    ]
 #flnms= ["crm_vol10_2023.nc"]
 #flnms= ["crm_socal_1as_vers2.nc"]
 count=0
 filval=-99999
 for fl in flnms:
-
     count=count+1
-    if count<9:
-        Nsubsample=9
-        Nstart=4
-    else:
+    
+    Nsubsample=9
+    Nstart=4
+    if (fl=="crm_vol6_2023.nc"or fl=="crm_vol6_2023.nc"  ):
         Nsubsample=3
         Nstart=1
-    
+    if fl == "hurl_bathy_60m_nwhi.CRMformat.nc":
+        Nsubsample=5
+        Nstart=2
+    if (fl == "pibhmc_bathy_60m_guam.crm.nc" or "ngdc_bathy_90m_amsamoa.crm.nc"):
+        Nsubsample=3
+        Nstart=1
+        
+        
     data0 = nc.Dataset(fl,"r")
     x=np.asarray(data0["lon"][:])
     y=np.asarray(data0["lat"][:])

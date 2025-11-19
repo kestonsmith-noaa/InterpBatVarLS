@@ -109,7 +109,25 @@ def ElementArea(x, y, e):
         AreaE[k]=A
     return AreaE
 
-def ComputeNodeLengthScale(lsE, areaE, e):
+def ComputeNodeLengthScale(x,y,e):
+    nn=np.max(e[:])
+    print("ComputeNodeLengthScale nn="+str(nn))
+    areaE=ElementArea(x, y, e)
+    LengthScaleE=lengthscale(x, y, e)
+    
+    ne=e.shape[0]
+    areaT=np.zeros(nn)
+    lsN=np.zeros(nn)
+    for k in range(ne):
+        for j in range(3):
+            i=e[k,j]-1
+            lsN[i]=lsN[i]+LengthScaleE[k]*areaE[k]
+            areaT[i]=areaT[i]+areaE[k]
+    for k in range(nn):
+        lsN[k]=lsN[k]/areaT[k]
+    return lsN
+
+def ComputeNodeLengthScale0(lsE, areaE, e):
     nn=np.max(e[:])
     print("ComputeNodeLengthScale nn="+str(nn))
     ne=e.shape[0]

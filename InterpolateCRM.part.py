@@ -19,20 +19,8 @@ import itertools
 import FiniteElementMeshRoutines as FE
 import GaussMarkov as GM
 
-coords_1 = (34.0522, -118.2437)  # Los Angeles
-coords_2 = (40.7128, -74.0060)   # New York City
-
-#Using Haversine
-#distance_haversine = distance.haversine(coords_1, coords_2).km
-#dist=distance.great_circle(coords_1, coords_2).km
-#print(f"Haversine distance: {dist:.2f} km")
-#maxval=100.
-
-
-#[0->7] variables(dimensions): |S1 crs(), float64 lat(lat), float64 lon(lon), float32 z(lat, lon)
-#[8->9]variables(dimensions): float64 x(x), float64 y(y), float32 z(y, x)
-#[10]variables(dimensions): float64 lon(num_lon), float64 lat(num_lat), int16 bed_elevation(num_row, num_col)
 """
+#too much extra resolution for our purposes
 flnms=[
     "crm_vol1_2023.nc",
     "crm_vol2_2023.nc",
@@ -48,25 +36,31 @@ flnms=[
     ]
 """
 flnms=[
-    "crm_vol1_2023.nc.S250m.nc",
-    "crm_vol2_2023.nc.S250m.nc",
-    "crm_vol3_2023.nc.S250m.nc",
-    "crm_vol4_2023.nc.S250m.nc",
-    "crm_vol5_2023.nc.S250m.nc",
-    "crm_vol7_2024.nc.S250m.nc",
-    "crm_vol9_2023.nc.S250m.nc",
-    "crm_vol10_2023.nc.S250m.nc", 
-    "crm_vol6_2023.nc.S250m.nc",
-    "crm_vol8_2023.nc.S250m.nc",
-    "crm_southak.nc",# dx=700m, fillvalue= -2147483648, not used...
-    "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc",
-#    "crm_socal_1as_vers2.nc.S250m.nc",# mostly redundent with 6 but some extra regions, need to synthesize
+    "crm_vol1_2023.nc.S250m.VB.nc",
+    "crm_vol2_2023.nc.S250m.VB.nc",
+    "crm_vol3_2023.nc.S250m.VB.nc",
+    "crm_vol4_2023.nc.S250m.VB.nc",
+    "crm_vol5_2023.nc.S250m.VB.nc",
+    "crm_vol7_2024.nc.S250m.VB.nc",
+    "crm_vol9_2023.nc.S250m.VB.nc",
+    "crm_vol10_2023.nc.S250m.VB.nc", 
+    "crm_vol6_2023.nc.S250m.VB.nc",
+    "crm_vol8_2023.nc.S250m.VB.nc",
+    "crm_southak.CRMformat.nc",# dx=700m, fillvalue= -2147483648, not used...
+    "hurl_bathy_60m_nwhi.CRMformat.nc.S250m.VB.nc",
+    "ngdc_bathy_90m_amsamoa.crm.nc",
+    "pibhmc_bathy_60m_guam.crm.nc",
+    "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
     ]
+#    "crm_socal_1as_vers2.nc.S250m.nc",# mostly redundent with 6 but some extra regions, need to synthesize
 Zmin=-11000. #deepest legit ocean depth value in case of mask fail 
 # nescesarry for data sets "crm_vol6_2023.nc.S250m.nc" and "crm_vol8_2023.nc.S250m.nc"
 Zmax=0. # maximum value to include in interpolation - zero out land values or ignore land 
-Dmin=10./1000.# minimum distance between observation points in km, prevent singularity
-lambdaLL=.025
+Dmin=5./1000.# 5 meter minimum distance between observation points in km, prevent singularity
+lambdaLL=.025 # set deg lat, lon search width for overlapping regions
+#use Approximately NxTarget**2 points per data set, 
+#each linear system is approx 2*(NxTarget**2)
+NxTarget=20 # N=20 ~ 10 grid points in each cardinal direction used in interpolating 
 NpointsMax=1000
 xlist=[]
 ylist=[]
@@ -104,9 +98,10 @@ OutDir=mshnm+".files/"
 
 xi, yi, ei = FE.loadWW3MeshCoords(mesh)
 
-lsE=FE.lengthscale(xi, yi, ei)
-areaE=FE.ElementArea(xi, yi, ei)
-lsN=FE.ComputeNodeLengthScale(lsE, areaE, ei)
+#lsE=FE.lengthscale(xi, yi, ei)
+#areaE=FE.ElementArea(xi, yi, ei)
+#lsN=FE.ComputeNodeLengthScale(lsE, areaE, ei)
+lsN=FE.ComputeNodeLengthScale(xi,yi,ei)
 
 print(np.min(lsN))
 print(np.mean(lsN))
@@ -144,7 +139,16 @@ for k in range(nn):
 
 nn=len(xil)
 nf=len(flnms)
-
+#set search width for each data set based on expected
+#number of points to interpolate
+SearchWidth=np.zeros(nf)
+for j in range(nf):
+    x=np.array(xlist[j][:])
+    dx=np.abs(x[1]-x[0])
+    SearchWidth[j]=dx*float(NxTarget)/2.
+    print("search width(deg Lat lon) for file: "+flnms[j]+" = ",str(SearchWidth[j]))
+SearchWidth[nf-1]=.75*SearchWidth[nf-1]
+    
 NumPoints=np.zeros(nn)
 ziID=np.zeros(nn)
 ziGMU=np.zeros(nn)
@@ -168,14 +172,10 @@ for n in range(nn):
         if all([ xp < xmax[j],xp > xmin[j],yp < ymax[j],yp > ymin[j]]):
             x=np.array(xlist[j][:])
             y=np.array(ylist[j][:])
-            lambdaLL0=lambdaLL
             fl=flnms[j]
-            "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
-            if j==nf-1: # sparser dataset
-                lambdaLL0=5.*lambdaLL # pull more points from sparser global dataset
-            jx=np.array(np.where( np.abs(xp-x) < lambdaLL0 ))
+            jx=np.array(np.where( np.abs(xp-x) < SearchWidth[j] ))
             jx=list(itertools.chain.from_iterable(jx))
-            jy=np.array(np.where( np.abs(yp-y) < lambdaLL0 ))
+            jy=np.array(np.where( np.abs(yp-y) < SearchWidth[j] ))
             jy=list(itertools.chain.from_iterable(jy))
             data = nc.Dataset(fl,"r")
             for kx in jx:
@@ -185,17 +185,16 @@ for n in range(nn):
                             if not z.mask:
                                 IncludePoint=True
                                 if len(xs)>0:#BEGIN -check for near duplicate points - causes singularity in GM
-                                    d=np.zeros(len(xs))
-                                    for k in range(len(xs)):
-                                        d[k]=GM.Distance(xs[k],ys[k],x[kx],y[ky])
+                                    d=GM.DistanceV(xs,ys,x[kx],y[ky])
                                     if np.min(d)<Dmin:
                                         print("near duplicate point at distance: "+str(np.min(d))+" for node "+str(n))
                                         IncludePoint=False #END -check for near duplicate points
                                 zd=float(z.data)
                                 if zd < Zmin:#double check mask fail and bad fill value
                                         IncludePoint=False
+#                                if zd > Zmax:#exclude land values(should be optional)
+#                                        IncludePoint=False
                                 if IncludePoint: # first point
-                                    #zd=float(z.data)
                                     zd=min(zd,Zmax) # trunkate interpolant to Zmax<=0
                                     xs.append(x[kx])
                                     ys.append(y[ky])
@@ -256,7 +255,7 @@ np.savetxt(floutGMM,  ziGMM, fmt='%.6f', delimiter='\n')
 np.savetxt(floutGM0,  ziGM0, fmt='%.6f', delimiter='\n')
 np.savetxt(floutGMU,  ziGMU, fmt='%.6f', delimiter='\n')
 np.savetxt(floutClosest,  ziClosest, fmt='%.6f', delimiter='\n')
-np.savetxt(floutNpts, NumPoints, fmt='%d', delimiter='\n')
+np.savetxt(floutNpts, NumPoints, fmt='%i', delimiter='\n')
 np.savetxt(floutLLS, LocalLengthScale, fmt='%.6f', delimiter='\n')
     
     
