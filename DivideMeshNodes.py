@@ -14,13 +14,6 @@ mshnm="RWPStest"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
 
-
-#floutGM=OutDir+'GM.'+Nzp+'.txt'
-#floutGMUnk=OutDir+'GMUnk.'+Nzp+'.txt'
-#floutID=OutDir+'InvDist.'+Nzp+'.txt'
-#floutNpts=OutDir+'NDataPoints.'+Nzp+'.txt'
-#floutClosest=OutDir+'ClosestValue.'+Nzp+'.txt'
-
 def WriteInterpJobscript(fl,N, ComputeNodes):
     with open(fl, 'w') as f:
         #yi[k]=float(values[4])
@@ -57,22 +50,11 @@ def WriteInterpJobscript(fl,N, ComputeNodes):
         f.write("python3 KnitOutputBackTogether.py "+str(N)+" NDataPoints\n")
         f.write("python3 KnitOutputBackTogether.py "+str(N)+" ClosestValue\n")
         f.write("python3 KnitOutputBackTogether.py "+str(N)+" LengthScale\n")
-    
-# for unsorted fields with leading zeros filename convention
-#        f.write("cat "+OutDir+"GM0.*.txt > GM0."+mshnm+".txt \n")
-#        f.write("cat "+OutDir+"GMM.*.txt > GMM."+mshnm+".txt \n")
-#        f.write("cat "+OutDir+"GMN.*.txt > GMN."+mshnm+".txt \n")
-#        f.write("cat "+OutDir+"GMU.*.txt > GMU."+mshnm+".txt \n")
-#        f.write("cat "+OutDir+"InvDist.*.txt > InvDist."+mshnm+".txt \n")
-#        f.write("cat "+OutDir+"NDataPoints.*.txt > NDataPoints."+mshnm+".txt \n")
-#        f.write("cat "+OutDir+"ClosestValue.*.txt > ClosestValue."+mshnm+".txt \n")
-#floutID=OutDir+'InvDist.'+Nzp+'.txt'
-#floutGMM=OutDir+'GMM.'+Nzp+'.txt'
-#floutGMN=OutDir+'GMN.'+Nzp+'.txt'
-#floutGM0=OutDir+'GM0.'+Nzp+'.txt'
-#floutGMU=OutDir+'GMU.'+Nzp+'.txt'
-#floutClosest=OutDir+'ClosestValue.'+Nzp+'.txt'
-#floutNpts=OutDir+'NDataPoints.'+Nzp+'.txt'
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" GMU.std\n")
+        f.write("python3 KnitOutputBackTogether.py "+str(N)+" GMN.std\n")
+#floutGMUerr= OutDir+'GMU.std.'+str(N)+'.txt'
+#floutGMNerr= OutDir+'GMN.std.'+str(N)+'.txt'
+
 
 # Create the output directory------------------------------------------
 try:

@@ -16,7 +16,7 @@ def InverseDistance(x,y,z,xi,yi):
     zi=np.dot( z, w )/np.sum( w )
     return zi
 
-def GaussMarkov(x,y,z,xi,yi,LengthScale,Vobs,V,MeanTyp):
+def GaussMarkov(x,y,z,xi,yi,LengthScale,Vobs,V,MeanTyp,CompErr):
     nx=len(x)
     f = np.zeros(nx)
     C = np.zeros((nx,nx))
@@ -30,6 +30,11 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,Vobs,V,MeanTyp):
     if np.isclose(detC, 0):
         zi=float("inf")
         print("Cov matrix is nearly singular. Check for double input points, etc.")
+        if not CompErr:
+            return zi
+        else:
+            erri=float("inf")
+            return zi, erri
     else:
         match MeanTyp:
             case "Zero": # simple kriging type
@@ -44,9 +49,13 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,Vobs,V,MeanTyp):
                 mu=0.
         w = np.linalg.solve(C, f)
         zi=mu+np.dot(w,z-np.array(mu))
-    return zi
+        if not CompErr:
+            return zi
+        else:
+            erri=np.sqrt(np.dot(f,np.linalg.matmul(C,f)) )
+            return zi, erri
 
-def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,Vobs,V):
+def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,Vobs,V,CompErr):
     nx=len(x)
     f = np.zeros(nx+1)
     C = np.zeros((nx+1,nx+1))
@@ -54,8 +63,8 @@ def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,Vobs,V):
         d = DistanceV(x,y,x[j],y[j])
         C[j,range(nx)]=CovarianceDistance(d,covmod,LengthScale,V)
         C[j,j]=C[j,j] + Vobs
-        C[nx,j]=1
-        C[j,nx]=1
+        C[nx,j]=1.
+        C[j,nx]=1.
     d = DistanceV(x,y,xi,yi)
     f[range(nx)] = CovarianceDistance(d,covmod,LengthScale,V)
     C[nx,nx]=0
@@ -63,11 +72,18 @@ def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,Vobs,V):
     detC = np.linalg.det(C)
     if np.isclose(detC, 0):
         zi=float("inf")
+        w=zi+f 
         print("Cov matrix is likely singular.")
     else:
         w = np.linalg.solve(C, f)
         zi= np.dot(w[range(nx)],z)
-    return zi
+    if not CompErr:
+        return zi
+    else:
+        C[nx,nx]=V
+        w[nx]=-1
+        erri=np.sqrt( np.dot( w, np.linalg.matmul(C,w) ) ) 
+        return zi, erri
 
 
 def DistanceV(x,y,x0,y0): #distance between list x,y and point x0,y0

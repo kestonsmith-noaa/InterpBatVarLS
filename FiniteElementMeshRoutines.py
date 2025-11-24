@@ -181,6 +181,7 @@ def loadWW3Mesh(fl):
             eix[k,2]=int(values[8])
             k=k+1
     ei=eix[range(k),:]
+    print("number of open boundary nodes read: "+str(nbnd))
     print("number of elements read: "+str(k))
     return xi, yi, zi, ei, bnd
 
