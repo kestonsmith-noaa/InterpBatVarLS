@@ -235,28 +235,19 @@ for n in range(nn):
         xs=xsp
         ys=ysp
         zs=zsp
-    ObsErr=np.mean(np.abs(zs))/100.
+    ObsErr= max(1. , np.mean(np.abs(zs))/100. ) # 1 percent of local mean depth
     VarObs=ObsErr**2
-    VarBG=VarObs+((np.std(zs))**2)/5
-#    VarObs=(np.max(np.abs(zs))/100.)**2
-    #VarBG=((np.max(zs)-np.min(zs))/10.)**2
-    #VarBG=(np.std(zs))**2
-    #VarObs=max(VarObs,.01)
-#    VarBG=10.*VarObs
-#    VarBG=np.var(zs)/10.
-    #VarBG=1.
-    #stderr=np.std(zs)/10.
-    #VarBG=1.
+    #VarBG=max(VarObs,np.std(np.abs(zs)**2)/10.)
+    #VarObs=1. 
+    VarBG=10.*VarObs
+    
     print("VarObs= "+str(VarObs)+", VarBG= "+str(VarBG))
-    #VarObs=1
-    #VarBG=VarObs*25.
-    #VarBG=1.
     
     ziID[n]=GM.InverseDistance(xs,ys,zs,xp,yp)
     ziGMU[n], stdiGMU[n]=GM.GaussMarkovUnkMean(xs, ys, zs, xp, yp,LSp, VarObs,VarBG,True)
-    print("est= "+str(ziGMU[n])+", err= "+str(stdiGMU[n]))
-    
-    ziGMN[n], stdiGMN[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Nearest",True)
+    print("U: est= "+str(ziGMU[n])+", err= "+str(stdiGMU[n]))
+    ziGMN[n], stdiGMN[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Nearest",True) #gives good results to eye
+    print("N: est= "+str(ziGMN[n])+", err= "+str(stdiGMN[n]))
     ziGMM[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Mean",False)
     ziGM0[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Zero",False)
     D=GM.DistanceV(xs,ys,xp,yp)

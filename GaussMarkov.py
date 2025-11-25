@@ -44,7 +44,7 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,Vobs,V,MeanTyp,CompErr):
             case "Median":
                 mu=np.median(z) # regional median
             case "Nearest": # nearest value
-                mu=z[np.argmax(f)] # max correlate==closest point for process mean
+                mu=z[np.argmax(f)] # max correlate(monotone)<==>closest point for process mean
             case _:
                 mu=0.
         w = np.linalg.solve(C, f)
@@ -52,7 +52,7 @@ def GaussMarkov(x,y,z,xi,yi,LengthScale,Vobs,V,MeanTyp,CompErr):
         if not CompErr:
             return zi
         else:
-            erri=np.sqrt(np.dot(f,np.linalg.matmul(C,f)) )
+            erri=np.sqrt( V  -  np.dot(f,w)) 
             return zi, erri
 
 def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,Vobs,V,CompErr):
@@ -80,9 +80,7 @@ def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,Vobs,V,CompErr):
     if not CompErr:
         return zi
     else:
-        C[nx,nx]=V
-        w[nx]=-1
-        erri=np.sqrt( np.dot( w, np.linalg.matmul(C,w) ) ) 
+        erri=np.sqrt( V + np.dot( w[0:nx], np.linalg.matmul(C[0:nx,0:nx],w[0:nx]))  -2.* np.dot(w[0:nx],f[0:nx])   ) 
         return zi, erri
 
 
