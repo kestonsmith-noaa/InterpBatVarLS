@@ -80,7 +80,7 @@ def GaussMarkovUnkMean(x,y,z,xi,yi,LengthScale,Vobs,V,CompErr):
     if not CompErr:
         return zi
     else:
-        erri=np.sqrt( V + np.dot( w[0:nx], np.linalg.matmul(C[0:nx,0:nx],w[0:nx]))  -2.* np.dot(w[0:nx],f[0:nx])   ) 
+        erri=np.sqrt( V + np.dot( w[0:nx], np.matmul(C[0:nx,0:nx],w[0:nx]))  -2.* np.dot(w[0:nx],f[0:nx])   ) 
         return zi, erri
 
 
