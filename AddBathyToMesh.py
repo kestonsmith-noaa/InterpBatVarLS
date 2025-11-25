@@ -5,8 +5,6 @@ import sys
 
 #meshes/global_1deg_unstr.mshOK.txt
 mshnm="RWPStest"
-mshnm="global_1deg_unstr"
-mshnm="RWPS25to1km"
 mesh="meshes/"+mshnm+".msh"
 
 flin=sys.argv[1]
