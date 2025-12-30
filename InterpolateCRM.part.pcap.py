@@ -17,7 +17,7 @@ import itertools
 #from pykrige.ok import OrdinaryKriging
 
 import FiniteElementMeshRoutines as FE
-import GaussMarkov.SVE as GM
+import GaussMarkovSVE as GM
 
 import gc
 """
@@ -236,7 +236,7 @@ for n in range(nn):
         ys=ysp
         zs=zsp
     #ObsErr= max(1. , np.mean(np.abs(zs))/100. ) # 1 percent of local mean depth
-    ObsErr= np.abs(zs))/100.  # 1 percent of local mean depth
+    ObsErr= np.abs(zs)/100.  # 1 percent of local mean depth
     j=np.where(ObsErr<.1)
     ObsErr[j]=.1
     VarObs=ObsErr**2
