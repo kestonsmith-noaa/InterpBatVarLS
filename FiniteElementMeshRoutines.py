@@ -7,7 +7,7 @@ import re
 deg2km=111.132954
 deg2rad=np.pi/180
 
-def WriteWW3Mesh(fl,xi,yi,zi,ei):
+def ReadWW3Mesh(fl,xi,yi,zi,ei):
     f=open(fl, 'r')
     header = f.readline() 
     header = f.readline() 
@@ -203,7 +203,9 @@ def WriteWW3Mesh(flo,x,y,z,e,bnd):
     for k in range(nbnd):
         f.write(str(k+1)+" 15 2 0 0 " + str(bnd[k])+"\n")
     for k in range(ne):
-        f.write(str(nbnd+k+1)+" 2 3 0 1 0 "+str(e[k,0])+" "+str(e[k,1])+" "+str(e[k,2])+"\n")
+        f.write(str(nbnd+k+1)+" 2 3 0 "+str(k+1)+" 0 "+str(e[k,0])+" "+str(e[k,1])+" "+str(e[k,2])+"\n")
+#        f.write(str(nbnd+k+1)+" 2 3 0 1 0 "+str(e[k,0])+" "+str(e[k,1])+" "+str(e[k,2])+"\n")
+    f.write("$EndElements\n")
     f.close
 
 
