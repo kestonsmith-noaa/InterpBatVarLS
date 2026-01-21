@@ -1,7 +1,8 @@
 
 import numpy as np
 import re
-covmod="Sph"
+#covmod="Sph"
+covmod="Exp"
 K=2
 variance=1.
 deg2km=111.132954

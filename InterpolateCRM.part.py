@@ -20,6 +20,7 @@ import FiniteElementMeshRoutines as FE
 import GaussMarkov as GM
 
 import gc
+
 """
 #too much extra resolution for our purposes
 flnms=[
@@ -44,6 +45,84 @@ flnms=[
     "crm_vol5_2023.nc.S250m.VB.nc",
     "crm_vol7_2024.nc.S250m.VB.nc",
     "crm_vol9_2023.nc.S250m.VB.nc",
+    "crm_vol10_2023.nc.S250m.VB.nc",
+    "crm_vol6_2023.nc.S250m.VB.nc",
+    "crm_vol8_2023.nc.S250m.VB.nc",
+    "crm_southak.CRMformat.nc",
+    "hurl_bathy_60m_nwhi.CRMformat.nc.S250m.VB.nc",
+    "PIX/ngdc_bathy_10m_wake.CRM.nc",
+    "PIX/pibhmc_bathy_20m_jarvis.CRM.nc",
+    "PIX/pibhmc_bathy_20m_johnston.CRM.nc",
+    "PIX/pibhmc_bathy_20m_kingman.CRM.nc",
+    "PIX/pibhmc_bathy_40m_baker.CRM.nc",
+    "PIX/pibhmc_bathy_40m_howland.CRM.nc",
+    "PIX/pibhmc_bathy_40m_palmyra.CRM.nc",
+    "PIX/pibhmc_bathy_40m_rose.CRM.nc",
+    "PIX/pibhmc_bathy_40m_swains.CRM.nc",
+    "PIX/pibhmc_bathy_40m_vailuluu.CRM.nc",
+    "PIX/pibhmc_bathy_5m_palmyra.CRM.nc",
+    "PIX/sopac_bathy_50m_majuro_reef.CRM.nc",
+    "PIX/ngdc_bathy_180m_mariana.CRM.nc",
+    "ngdc_bathy_90m_amsamoa.crm.nc",
+    "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
+    ]
+
+"""
+#too many redundent data sets
+flnms=[
+    "crm_vol1_2023.nc.S250m.VB.nc",
+    "crm_vol2_2023.nc.S250m.VB.nc",
+    "crm_vol3_2023.nc.S250m.VB.nc",
+    "crm_vol4_2023.nc.S250m.VB.nc",
+    "crm_vol5_2023.nc.S250m.VB.nc",
+    "crm_vol7_2024.nc.S250m.VB.nc",
+    "crm_vol9_2023.nc.S250m.VB.nc",
+    "crm_vol10_2023.nc.S250m.VB.nc", 
+    "crm_vol6_2023.nc.S250m.VB.nc",
+    "crm_vol8_2023.nc.S250m.VB.nc",
+    "crm_southak.CRMformat.nc", # dx=700m, fillvalue= -2147483648, not used...
+    "hurl_bathy_60m_nwhi.CRMformat.nc.S250m.VB.nc",
+    "ngdc_bathy_90m_amsamoa.crm.nc",
+    "pibhmc_bathy_60m_guam.crm.nc",
+    "PIX/ngdc_bathy_10m_tutuila.CRM.nc",
+    "PIX/ngdc_bathy_10m_wake.CRM.nc",
+    "PIX/ngdc_bathy_180m_mariana.CRM.nc",
+    "PIX/pibhmc_bathy_10m_agrihan.CRM.nc",
+    "PIX/pibhmc_bathy_10m_alamagan.CRM.nc",
+    "PIX/pibhmc_bathy_10m_asuncion.CRM.nc",
+    "PIX/pibhmc_bathy_10m_guguan.CRM.nc",
+    "PIX/pibhmc_bathy_10m_maug.CRM.nc",
+    "PIX/pibhmc_bathy_10m_pagan.CRM.nc",
+    "PIX/pibhmc_bathy_10m_pajaros.CRM.nc",
+    "PIX/pibhmc_bathy_10m_sarigan.CRM.nc",
+    "PIX/pibhmc_bathy_10m_supply.CRM.nc",
+    "PIX/pibhmc_bathy_20m_jarvis.CRM.nc",
+    "PIX/pibhmc_bathy_20m_johnston.CRM.nc",
+    "PIX/pibhmc_bathy_20m_kingman.CRM.nc",
+    "PIX/pibhmc_bathy_20m_nebank.CRM.nc",
+    "PIX/pibhmc_bathy_40m_baker.CRM.nc",
+    "PIX/pibhmc_bathy_40m_howland.CRM.nc",
+    "PIX/pibhmc_bathy_40m_palmyra.CRM.nc",
+    "PIX/pibhmc_bathy_40m_rose.CRM.nc",
+    "PIX/pibhmc_bathy_40m_swains.CRM.nc",
+    "PIX/pibhmc_bathy_40m_twoperbank.CRM.nc",
+    "PIX/pibhmc_bathy_40m_vailuluu.CRM.nc",
+    "PIX/pibhmc_bathy_5m_palmyra.CRM.nc",
+    "PIX/pibhmc_bathy_5m_tinian.CRM.nc",
+    "PIX/pibhmc_bathy_60m_rota.CRM.nc",
+    "PIX/sopac_bathy_50m_majuro_reef.CRM.nc",
+    "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
+    ]
+"""
+"""
+flnms=[
+    "crm_vol1_2023.nc.S250m.VB.nc",
+    "crm_vol2_2023.nc.S250m.VB.nc",
+    "crm_vol3_2023.nc.S250m.VB.nc",
+    "crm_vol4_2023.nc.S250m.VB.nc",
+    "crm_vol5_2023.nc.S250m.VB.nc",
+    "crm_vol7_2024.nc.S250m.VB.nc",
+    "crm_vol9_2023.nc.S250m.VB.nc",
     "crm_vol10_2023.nc.S250m.VB.nc", 
     "crm_vol6_2023.nc.S250m.VB.nc",
     "crm_vol8_2023.nc.S250m.VB.nc",
@@ -51,8 +130,13 @@ flnms=[
     "hurl_bathy_60m_nwhi.CRMformat.nc.S250m.VB.nc",
     "ngdc_bathy_90m_amsamoa.crm.nc",
     "pibhmc_bathy_60m_guam.crm.nc",
+    "ngdc_bathy_180m_mariana.CRM.nc",
     "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
     ]
+"""
+#    "srtm30plus_v11_bathy.CRMformat.nc"
+#    "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
+#    ]
 #    "crm_socal_1as_vers2.nc.S250m.nc",# mostly redundent with 6 but some extra regions, need to synthesize
 Zmin=-11000. #deepest legit ocean depth value in case of mask fail 
 # nescesarry for data sets "crm_vol6_2023.nc.S250m.nc" and "crm_vol8_2023.nc.S250m.nc"
@@ -93,7 +177,7 @@ def ZeroPadIntStr(N,K):
     ZPNs=str(N).zfill(K)
     return ZPNs
 
-mshnm="RWPStest"
+mshnm="RWPS.OSMxGSHHS"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
 
@@ -169,8 +253,12 @@ t0 = time.time()
 for n in range(nn):
     xp=xil[n]%360
     yp=yil[n]
-    LSp=LSl[n]#LocalLengthScale for interpolation
-    LocalLengthScale[n]=LSp
+
+#    LSp=2.*LSl[n] #probably better choice for spherical covarianve function
+    LSp=1.*LSl[n] #choice for exponential covarianve function
+    LSp=0.25*LSl[n] 
+#    LSp=LSl[n] #Local length scale for interpolation
+    LocalLengthScale[n]=LSp 
     xs=[]
     ys=[]
     zs=[]
@@ -191,7 +279,7 @@ for n in range(nn):
                             z=data["z"][ky,kx]
                             if not z.mask:
                                 IncludePoint=True
-                                if len(xs)>0:#BEGIN -check for near duplicate points - causes singularity in GM
+                                if len(xs)>0: #BEGIN -check for near duplicate points - causes singularity in GM
                                     d=GM.DistanceV(xs,ys,x[kx],y[ky])
                                     if np.min(d)<Dmin:
                                         print("near duplicate point at distance: "+str(np.min(d))+" for node "+str(n))
@@ -237,17 +325,19 @@ for n in range(nn):
         zs=zsp
     ObsErr= max(1. , np.mean(np.abs(zs))/100. ) # 1 percent of local mean depth
     VarObs=ObsErr**2
-    #VarBG=max(VarObs,np.std(np.abs(zs)**2)/10.)
+    #VarBG=VarObs+max(VarObs,  np.var( np.abs(zs) ) )
     #VarObs=1. 
     VarBG=10.*VarObs
     
-    print("VarObs= "+str(VarObs)+", VarBG= "+str(VarBG))
+#    print("VarObs= "+str(VarObs)+", VarBG= "+str(VarBG))
+    print("std obs= " + str(np.sqrt(VarObs)) + " (m), std BG= " + str(np.sqrt(VarBG))+" (m)"  )
     
     ziID[n]=GM.InverseDistance(xs,ys,zs,xp,yp)
     ziGMU[n], stdiGMU[n]=GM.GaussMarkovUnkMean(xs, ys, zs, xp, yp,LSp, VarObs,VarBG,True)
-    print("U: est= "+str(ziGMU[n])+", err= "+str(stdiGMU[n]))
+    print("Number of obs = " +str(len(zs))  )
+    print("GMU: est= "+str(ziGMU[n])+", err= "+str(stdiGMU[n]))
     ziGMN[n], stdiGMN[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Nearest",True) #gives good results to eye
-    print("N: est= "+str(ziGMN[n])+", err= "+str(stdiGMN[n]))
+    print("GMN: est= "+str(ziGMN[n])+", err= "+str(stdiGMN[n]))
     ziGMM[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Mean",False)
     ziGM0[n]=GM.GaussMarkov(xs, ys, zs, xp, yp, LSp, VarObs,VarBG,"Zero",False)
     D=GM.DistanceV(xs,ys,xp,yp)

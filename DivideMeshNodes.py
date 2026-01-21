@@ -10,7 +10,7 @@ from scipy.interpolate import RegularGridInterpolator
 import FiniteElementMeshRoutines as FE
 import random
 
-mshnm="RWPStest"
+mshnm="RWPS.OSMxGSHHS"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
 

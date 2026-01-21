@@ -3,7 +3,7 @@ import numpy as np
 import FiniteElementMeshRoutines as FE
 import sys
 
-mshnm="global_1deg_unstr"
+mshnm="RWPS.OSMxGSHHS"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
 

@@ -3,8 +3,7 @@ import FiniteElementMeshRoutines as FE
 import numpy as np
 import sys
 
-#meshes/global_1deg_unstr.mshOK.txt
-mshnm="RWPStest"
+mshnm="RWPS.OSMxGSHHS"
 mesh="meshes/"+mshnm+".msh"
 
 flin=sys.argv[1]

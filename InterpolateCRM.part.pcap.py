@@ -93,7 +93,7 @@ def ZeroPadIntStr(N,K):
     ZPNs=str(N).zfill(K)
     return ZPNs
 
-mshnm="RWPStest"
+mshnm="RWPS.OSMxGSHHS"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
 
@@ -174,8 +174,14 @@ for n in range(nn):
     xs=[]
     ys=[]
     zs=[]
+    VarObs=[]
     si=0
+    erds=1.
+
     for j in range(nf):
+        if j==nf-1:
+            erds=100.
+
         if all([ xp < xmax[j],xp > xmin[j],yp < ymax[j],yp > ymin[j]]):
             x=np.array(xlist[j][:])
             y=np.array(ylist[j][:])
@@ -206,6 +212,7 @@ for n in range(nn):
                                     xs.append(x[kx])
                                     ys.append(y[ky])
                                     zs.append(zd)
+                                    VarObs.append(erds**2)
     if n % 10 == 0:
         print("interpolating to:"+str(yp)+":"+str(xp))
         t1 = time.time()
@@ -225,21 +232,24 @@ for n in range(nn):
         xsp=np.zeros(NpointsMax)
         ysp=xsp
         zsp=xsp
+        VarObsp=xsp
         D=GM.Distance(xs,ys,xp,yp)
         for k in range(NpointsMax):
             ki=np.argmin(D)
             xsp[k]=xs[ki]
             ysp[k]=ys[ki]
             zsp[k]=zs[ki]
+            VarObsp[k]=VarObs[ki]
             D[ki]=float('inf')
         xs=xsp
         ys=ysp
         zs=zsp
+        VarObs=VarObsp
     #ObsErr= max(1. , np.mean(np.abs(zs))/100. ) # 1 percent of local mean depth
-    ObsErr= np.abs(zs)/100.  # 1 percent of local mean depth
-    j=np.where(ObsErr<.1)
-    ObsErr[j]=.1
-    VarObs=ObsErr**2
+##    ObsErr= np.abs(zs)/100.  # 1 percent of local mean depth
+##    j=np.where(ObsErr<1.)
+##    ObsErr[j]=1.
+##    VarObs=ObsErr**2
     #VarBG=max(VarObs,np.std(np.abs(zs)**2)/10.)
     #VarObs=1. 
     VarBG=10.*np.mean(VarObs)
