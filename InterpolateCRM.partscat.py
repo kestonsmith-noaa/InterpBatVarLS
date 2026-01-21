@@ -38,7 +38,7 @@ flnms=[
     ]
 """
 flnms=[
-    "cmems_obs-sdb_glo_phy-comp_my-oa-100m-static.pts.nc"
+    "cmems_obs-sdb_glo_phy-comp_my-oa-100m-static.pts.nc",
     "crm_vol1_2023.nc.S250m.VB.nc",
     "crm_vol2_2023.nc.S250m.VB.nc",
     "crm_vol3_2023.nc.S250m.VB.nc",
@@ -301,13 +301,14 @@ for n in range(nn):
                                         zs.append(zd)
         else: # global scattered data, filetype[j] == 1
             fl=flnms[j]
-            j=np.array( np.where( and( np.abs(xp-x) < SearchWidth[j],np.abs(yp-y) < SearchWidth[j] ) ) )
+#            j=np.array( np.where(  np.abs(xp-x) < SearchWidth[j] and np.abs(yp-y) < SearchWidth[j]  ) )
+            j=np.array( np.where( a.all( np.abs(xp-x) < SearchWidth[j], np.abs(yp-y) < SearchWidth[j] ) ) )
             j=list(itertools.chain.from_iterable(j))
             z=data["z"][j]
             zd=float(z.data)
             x=data["lon"][j]
             y=data["lat"][j]
-            jp=np.where( zd =< 0.)
+            jp=np.where( zd <= 0.)
             x=x[jp]
             y=y[jp]
             zd=zd[jp]
