@@ -67,81 +67,13 @@ flnms=[
     "ngdc_bathy_90m_amsamoa.crm.nc",
     "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
     ]
+########################################################
+#set filetype to 0 for gridded and 1 for scattered data
 nf=len(flnms)
 filetype=np.zeros(nf, dtype=int)
 filetype[0]=1
+########################################################
 
-"""
-#too many redundent data sets
-flnms=[
-    "crm_vol1_2023.nc.S250m.VB.nc",
-    "crm_vol2_2023.nc.S250m.VB.nc",
-    "crm_vol3_2023.nc.S250m.VB.nc",
-    "crm_vol4_2023.nc.S250m.VB.nc",
-    "crm_vol5_2023.nc.S250m.VB.nc",
-    "crm_vol7_2024.nc.S250m.VB.nc",
-    "crm_vol9_2023.nc.S250m.VB.nc",
-    "crm_vol10_2023.nc.S250m.VB.nc", 
-    "crm_vol6_2023.nc.S250m.VB.nc",
-    "crm_vol8_2023.nc.S250m.VB.nc",
-    "crm_southak.CRMformat.nc", # dx=700m, fillvalue= -2147483648, not used...
-    "hurl_bathy_60m_nwhi.CRMformat.nc.S250m.VB.nc",
-    "ngdc_bathy_90m_amsamoa.crm.nc",
-    "pibhmc_bathy_60m_guam.crm.nc",
-    "PIX/ngdc_bathy_10m_tutuila.CRM.nc",
-    "PIX/ngdc_bathy_10m_wake.CRM.nc",
-    "PIX/ngdc_bathy_180m_mariana.CRM.nc",
-    "PIX/pibhmc_bathy_10m_agrihan.CRM.nc",
-    "PIX/pibhmc_bathy_10m_alamagan.CRM.nc",
-    "PIX/pibhmc_bathy_10m_asuncion.CRM.nc",
-    "PIX/pibhmc_bathy_10m_guguan.CRM.nc",
-    "PIX/pibhmc_bathy_10m_maug.CRM.nc",
-    "PIX/pibhmc_bathy_10m_pagan.CRM.nc",
-    "PIX/pibhmc_bathy_10m_pajaros.CRM.nc",
-    "PIX/pibhmc_bathy_10m_sarigan.CRM.nc",
-    "PIX/pibhmc_bathy_10m_supply.CRM.nc",
-    "PIX/pibhmc_bathy_20m_jarvis.CRM.nc",
-    "PIX/pibhmc_bathy_20m_johnston.CRM.nc",
-    "PIX/pibhmc_bathy_20m_kingman.CRM.nc",
-    "PIX/pibhmc_bathy_20m_nebank.CRM.nc",
-    "PIX/pibhmc_bathy_40m_baker.CRM.nc",
-    "PIX/pibhmc_bathy_40m_howland.CRM.nc",
-    "PIX/pibhmc_bathy_40m_palmyra.CRM.nc",
-    "PIX/pibhmc_bathy_40m_rose.CRM.nc",
-    "PIX/pibhmc_bathy_40m_swains.CRM.nc",
-    "PIX/pibhmc_bathy_40m_twoperbank.CRM.nc",
-    "PIX/pibhmc_bathy_40m_vailuluu.CRM.nc",
-    "PIX/pibhmc_bathy_5m_palmyra.CRM.nc",
-    "PIX/pibhmc_bathy_5m_tinian.CRM.nc",
-    "PIX/pibhmc_bathy_60m_rota.CRM.nc",
-    "PIX/sopac_bathy_50m_majuro_reef.CRM.nc",
-    "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
-    ]
-"""
-"""
-flnms=[
-    "crm_vol1_2023.nc.S250m.VB.nc",
-    "crm_vol2_2023.nc.S250m.VB.nc",
-    "crm_vol3_2023.nc.S250m.VB.nc",
-    "crm_vol4_2023.nc.S250m.VB.nc",
-    "crm_vol5_2023.nc.S250m.VB.nc",
-    "crm_vol7_2024.nc.S250m.VB.nc",
-    "crm_vol9_2023.nc.S250m.VB.nc",
-    "crm_vol10_2023.nc.S250m.VB.nc", 
-    "crm_vol6_2023.nc.S250m.VB.nc",
-    "crm_vol8_2023.nc.S250m.VB.nc",
-    "crm_southak.CRMformat.nc",# dx=700m, fillvalue= -2147483648, not used...
-    "hurl_bathy_60m_nwhi.CRMformat.nc.S250m.VB.nc",
-    "ngdc_bathy_90m_amsamoa.crm.nc",
-    "pibhmc_bathy_60m_guam.crm.nc",
-    "ngdc_bathy_180m_mariana.CRM.nc",
-    "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
-    ]
-"""
-#    "srtm30plus_v11_bathy.CRMformat.nc"
-#    "RTopo_2_0_4_GEBCO_v2023_60sec_pixel.CRMformat.nc"
-#    ]
-#    "crm_socal_1as_vers2.nc.S250m.nc",# mostly redundent with 6 but some extra regions, need to synthesize
 Zmin=-11000. #deepest legit ocean depth value in case of mask fail 
 # nescesarry for data sets "crm_vol6_2023.nc.S250m.nc" and "crm_vol8_2023.nc.S250m.nc"
 Zmax=0. # maximum value to include in interpolation - zero out land values or ignore land 
@@ -162,15 +94,18 @@ ymax=np.zeros(len(flnms))
 ymin=np.zeros(len(flnms))
 for fl in flnms:
 #    print(f"'{fl}' has a length of {len(fl)}")
+#    if n>0:
     data = nc.Dataset(fl,"r")
     x=np.array(data["lon"][:])
     x=x%360
+    print(n)
+    print(x.shape)
     y=np.array(data["lat"][:])
     xlist.append(list(x))
     ylist.append(list(y))
     nxl[n]=len(x)
     nyl[n]=len(y)
-    #setup quick lookup table for file exlusion
+        #setup quick lookup table for file exlusion
     xmax[n]=np.max(x)+lambdaLL*2
     xmin[n]=np.min(x)-lambdaLL*2
     ymax[n]=np.max(y)+lambdaLL*2
@@ -181,15 +116,12 @@ def ZeroPadIntStr(N,K):
     ZPNs=str(N).zfill(K)
     return ZPNs
 
-mshnm="RWPS.OSMxGSHHS"
+mshnm="HawaiiTest"
 mesh="meshes/"+mshnm+".msh"
 OutDir=mshnm+".files/"
 
 xi, yi, ei = FE.loadWW3MeshCoords(mesh)
 
-#lsE=FE.lengthscale(xi, yi, ei)
-#areaE=FE.ElementArea(xi, yi, ei)
-#lsN=FE.ComputeNodeLengthScale(lsE, areaE, ei)
 lsN=FE.ComputeNodeLengthScale(xi,yi,ei)
 
 print(np.min(lsN))
@@ -197,9 +129,6 @@ print(np.mean(lsN))
 print(np.max(lsN))
 
 N=int(sys.argv[1])
-
-#Nzp=ZeroPadIntStr(N,5)
-#print("N= "+str(N)+" Nzp=",Nzp)
 
 fln=OutDir+'NodeList.'+str(N)+'.txt'
 floutID=OutDir+'InvDist.'+str(N)+'.txt'
@@ -240,6 +169,8 @@ for j in range(nf):
     dx=np.abs(x[1]-x[0])
     SearchWidth[j]=dx*float(NxTarget)/2.
     print("search width(deg Lat lon) for file: "+flnms[j]+" = ",str(SearchWidth[j]))
+
+SearchWidth[0]=.05
 SearchWidth[nf-1]=.75*SearchWidth[nf-1] # smaller number for global bathy set
     
 NumPoints=np.zeros(nn)
@@ -254,13 +185,20 @@ ziClosest=np.zeros(nn)
 LocalLengthScale=np.zeros(nn)
 
 t0 = time.time()
+fl=flnms[0]                
+data = nc.Dataset(fl,"r")
+x0=data["lon"][:]
+x0=x0%360
+y0=data["lat"][:]
+z0=data["z"][:]
+#z0=float(z0.data)
 for n in range(nn):
     xp=xil[n]%360
     yp=yil[n]
 
 #    LSp=2.*LSl[n] #probably better choice for spherical covarianve function
     LSp=1.*LSl[n] #choice for exponential covarianve function
-    LSp=0.25*LSl[n] 
+#    LSp=0.25*LSl[n] 
 #    LSp=LSl[n] #Local length scale for interpolation
     LocalLengthScale[n]=LSp 
     xs=[]
@@ -272,7 +210,11 @@ for n in range(nn):
             if all([ xp < xmax[j],xp > xmin[j],yp < ymax[j],yp > ymin[j]]):
                 x=np.array(xlist[j][:])
                 y=np.array(ylist[j][:])
+                print("x structured")
+                print(x)
+                print(x.shape)
                 fl=flnms[j]
+                print(fl)
                 jx=np.array(np.where( np.abs(xp-x) < SearchWidth[j] ))
                 jx=list(itertools.chain.from_iterable(jx))
                 jy=np.array(np.where( np.abs(yp-y) < SearchWidth[j] ))
@@ -285,6 +227,10 @@ for n in range(nn):
                                 if not z.mask:
                                     IncludePoint=True
                                     if len(xs)>0: #BEGIN -check for near duplicate points - causes singularity in GM
+                                        #print(x[kx])
+                                        #print(y[ky])
+                                        #print(xs)
+                                        #print(ys)
                                         d=GM.DistanceV(xs,ys,x[kx],y[ky])
                                         if np.min(d)<Dmin:
                                             print("near duplicate point at distance: "+str(np.min(d))+" for node "+str(n))
@@ -301,23 +247,26 @@ for n in range(nn):
                                         zs.append(zd)
         else: # global scattered data, filetype[j] == 1
             fl=flnms[j]
-#            j=np.array( np.where(  np.abs(xp-x) < SearchWidth[j] and np.abs(yp-y) < SearchWidth[j]  ) )
-            j=np.array( np.where( a.all( np.abs(xp-x) < SearchWidth[j], np.abs(yp-y) < SearchWidth[j] ) ) )
+            j=np.array( np.where(  np.array(np.abs(xp-x0) < SearchWidth[j] ) & np.array(np.abs(yp-y0) < SearchWidth[j] ) ) )
+            #j=np.array( np.where( (xp-x0)**2+(yp-y0)**2 < .05**2 ) )
             j=list(itertools.chain.from_iterable(j))
-            z=data["z"][j]
-            zd=float(z.data)
-            x=data["lon"][j]
-            y=data["lat"][j]
-            jp=np.where( zd <= 0.)
-            x=x[jp]
-            y=y[jp]
-            zd=zd[jp]
-            xs.append(x[kx])
-            ys.append(y[ky])
-            zs.append(zd)
+            j=np.array(j).flatten()
+            if j.size>0:
+                j=np.array(j).flatten()
+                x=x0[j]
+                y=y0[j]
+                zd=z0[j]
+                jp=np.where( zd <= 0.)
+                x=x[jp]
+                y=y[jp]
+                zd=zd[jp]
+                print("number of points from "+fl+" is " +str(len(zd)) )
+                xs.extend(x)
+                ys.extend(y)
+                zs.extend(zd)
            
           
-    if n % 10 == 0:
+    if n % 1 == 0:
         print("interpolating to:"+str(yp)+":"+str(xp))
         t1 = time.time()
         time_per_iter = (t1 - t0) / (n + 1)
